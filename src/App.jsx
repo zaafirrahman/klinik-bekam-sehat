@@ -10,6 +10,7 @@ import Finance from './pages/Finance/Finance'
 import Consultations from './pages/Consultations/Consultations'
 import Reports from './pages/Reports/Reports'
 import Settings from './pages/Settings/Settings'
+import AppLayout from './components/AppLayout'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -41,16 +42,18 @@ function App() {
 
   // Sudah login
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/patients" replace />} />
-      <Route path="/patients" element={<Patients />} />
-      <Route path="/visits" element={<Visits />} />
-      <Route path="/finance" element={<Finance />} />
-      <Route path="/consultations" element={<Consultations />} />
-      <Route path="/reports" element={<Reports />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="*" element={<Navigate to="/patients" replace />} />
-    </Routes>
+    <AppLayout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/patients" replace />} />
+        <Route path="/patients" element={<Patients />} />
+        <Route path="/visits" element={<Visits />} />
+        <Route path="/finance" element={<Finance />} />
+        <Route path="/consultations" element={<Consultations />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<Navigate to="/patients" replace />} />
+      </Routes>
+    </AppLayout>
   )
 }
 
