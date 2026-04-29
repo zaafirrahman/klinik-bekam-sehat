@@ -87,6 +87,11 @@ export default function ConsultationDetail() {
   const generatePDF = async () => {
     setGeneratingPdf(true)
     try {
+      const clinicInfo = JSON.parse(localStorage.getItem('clinic_info') || '{}')
+      const clinicName = clinicInfo.name || 'Klinik Bekam Sehat Medan'
+      const clinicAddress = clinicInfo.address || '[Alamat Klinik]'
+      const clinicPhone = clinicInfo.phone || '[No. Telp Klinik]'
+      const clinicDoctor = clinicInfo.doctor || 'Klinik Bekam Sehat'
       const doc = new jsPDF()
       const currentYear = new Date().getFullYear()
       const pageWidth = doc.internal.pageSize.getWidth()
@@ -95,11 +100,11 @@ export default function ConsultationDetail() {
       // Header Klinik
       doc.setFontSize(16)
       doc.setFont('helvetica', 'bold')
-      doc.text('KLINIK BEKAM SEHAT MEDAN', pageWidth / 2, 20, { align: 'center' })
+      doc.text(clinicName.toUpperCase(), pageWidth / 2, 20, { align: 'center' })
 
       doc.setFontSize(10)
       doc.setFont('helvetica', 'normal')
-      doc.text('Jl. [Alamat Klinik] · Medan · Telp: [No. Telp Klinik]', pageWidth / 2, 27, { align: 'center' })
+      doc.text(`${clinicAddress} · Telp: ${clinicPhone}`, pageWidth / 2, 27, { align: 'center' })
 
       // Garis
       doc.setLineWidth(0.5)
@@ -185,7 +190,7 @@ export default function ConsultationDetail() {
       })}`, pageWidth - margin - 60, y)
       doc.text('Dokter / Terapis,', pageWidth - margin - 60, y + 8)
       doc.text('_____________________', pageWidth - margin - 60, sigY)
-      doc.text('Klinik Bekam Sehat', pageWidth - margin - 60, sigY + 7)
+      doc.text(clinicDoctor, pageWidth - margin - 60, sigY + 7)
 
       // Nomor arsip
       if (consult.archive_ref) {
