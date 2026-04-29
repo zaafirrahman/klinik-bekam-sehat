@@ -13,6 +13,7 @@ import Settings from './pages/Settings/Settings'
 import AppLayout from './components/AppLayout'
 import VisitDetail from './pages/Visits/VisitDetail'
 import ConsultationDetail from './pages/Consultations/ConsultationDetail'
+import FinanceMonthly from './pages/Finance/FinanceMonthly'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -57,6 +58,7 @@ function App() {
         <Route path="*" element={<Navigate to="/patients" replace />} />
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/consultations/:id" element={<ConsultationDetail />} />
+        <Route path="/finance/monthly" element={<FinanceMonthly />} />
       </Routes>
     </AppLayout>
   )

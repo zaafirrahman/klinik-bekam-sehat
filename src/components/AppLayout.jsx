@@ -25,12 +25,13 @@ import {
 import { Separator } from '@/components/ui/separator'
 
 const navItems = [
-  { label: 'Pasien',        path: '/patients',      icon: '👤' },
-  { label: 'Kunjungan',     path: '/visits',        icon: '🏥' },
-  { label: 'Keuangan',      path: '/finance',       icon: '💰' },
-  { label: 'Konsultasi',    path: '/consultations', icon: '📋' },
-  { label: 'Laporan',       path: '/reports',       icon: '📊' },
-  { label: 'Pengaturan',    path: '/settings',      icon: '⚙️' },
+  { label: 'Pasien',             path: '/patients',        icon: '👤' },
+  { label: 'Kunjungan',          path: '/visits',          icon: '🏥' },
+  { label: 'Konsultasi',         path: '/consultations',   icon: '📋' },
+  { label: 'Keuangan Harian',    path: '/finance',         icon: '💰' },
+  { label: 'Keuangan Bulanan',   path: '/finance/monthly', icon: '📅' },
+  { label: 'Laporan',            path: '/reports',         icon: '📊' },
+  { label: 'Pengaturan',         path: '/settings',        icon: '⚙️' },
 ]
 
 export default function AppLayout({ children }) {
