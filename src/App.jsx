@@ -11,6 +11,7 @@ import Consultations from './pages/Consultations/Consultations'
 import Reports from './pages/Reports/Reports'
 import Settings from './pages/Settings/Settings'
 import AppLayout from './components/AppLayout'
+import VisitDetail from './pages/Visits/VisitDetail'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -39,7 +40,7 @@ function App() {
       </Routes>
     )
   }
-
+  
   // Sudah login
   return (
     <AppLayout>
@@ -47,6 +48,7 @@ function App() {
         <Route path="/" element={<Navigate to="/patients" replace />} />
         <Route path="/patients" element={<Patients />} />
         <Route path="/visits" element={<Visits />} />
+        <Route path="/visits/:id" element={<VisitDetail />} />
         <Route path="/finance" element={<Finance />} />
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/reports" element={<Reports />} />
