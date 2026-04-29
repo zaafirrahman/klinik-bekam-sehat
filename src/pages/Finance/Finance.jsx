@@ -14,6 +14,13 @@ import {
   Dialog, DialogContent, DialogHeader,
   DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  Command, CommandEmpty, CommandGroup,
+  CommandInput, CommandItem, CommandList,
+} from '@/components/ui/command'
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from '@/components/ui/popover'
 
 export default function Finance() {
   const [selectedDate, setSelectedDate] = useState(
@@ -22,7 +29,6 @@ export default function Finance() {
   const [income, setIncome] = useState([])
   const [expenses, setExpenses] = useState([])
   const [loading, setLoading] = useState(true)
-  const [profile, setProfile] = useState(null)
 
   // Expense form
   const [expenseOpen, setExpenseOpen] = useState(false)
@@ -30,22 +36,25 @@ export default function Finance() {
     description: '', quantity: 1, amount: ''
   })
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-      setProfile(data)
-    }
-    fetchProfile()
-  }, [])
+  // Product income form
+  const [productOpen, setProductOpen] = useState(false)
+  const [products, setProducts] = useState([])
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [productPopover, setProductPopover] = useState(false)
+  const [productSearch, setProductSearch] = useState('')
+  const [productForm, setProductForm] = useState({ quantity: 1, amount: '' })
+
+  const fetchProducts = async () => {
+    const { data } = await supabase
+      .from('services')
+      .select('*')
+      .eq('category', 'produk')
+      .eq('is_active', true)
+    setProducts(data || [])
+  }
 
   const fetchFinance = async () => {
     setLoading(true)
-
     const [incomeRes, expenseRes] = await Promise.all([
       supabase
         .from('daily_income')
@@ -68,12 +77,12 @@ export default function Finance() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchFinance() }, [selectedDate])
+  useEffect(() => { fetchFinance(); fetchProducts() }, [selectedDate])
 
+  // ADD EXPENSE
   const handleAddExpense = async (e) => {
     e.preventDefault()
     const { data: { user } } = await supabase.auth.getUser()
-
     const { error } = await supabase.from('daily_expenses').insert({
       entry_date: selectedDate,
       description: expenseForm.description,
@@ -81,7 +90,6 @@ export default function Finance() {
       amount: parseFloat(expenseForm.amount),
       created_by: user.id,
     })
-
     if (error) toast.error('Gagal menambah pengeluaran')
     else {
       toast.success('Pengeluaran berhasil dicatat!')
@@ -94,29 +102,48 @@ export default function Finance() {
   const handleDeleteExpense = async (id) => {
     const { error } = await supabase.from('daily_expenses').delete().eq('id', id)
     if (error) toast.error('Gagal menghapus pengeluaran')
+    else { toast.success('Pengeluaran dihapus'); fetchFinance() }
+  }
+
+  // ADD PRODUCT INCOME
+  const handleAddProductIncome = async (e) => {
+    e.preventDefault()
+    if (!selectedProduct) { toast.error('Pilih produk terlebih dahulu'); return }
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { error } = await supabase.from('daily_income').insert({
+      entry_date: selectedDate,
+      source_type: 'product',
+      visit_service_id: null,
+      description: selectedProduct.name,
+      quantity: parseInt(productForm.quantity),
+      amount: parseFloat(productForm.amount) * parseInt(productForm.quantity),
+      created_by: user.id,
+    })
+
+    if (error) toast.error('Gagal mencatat pemasukan produk')
     else {
-      toast.success('Pengeluaran dihapus')
+      toast.success('Pemasukan produk berhasil dicatat!')
+      setSelectedProduct(null)
+      setProductForm({ quantity: 1, amount: '' })
+      setProductOpen(false)
       fetchFinance()
     }
   }
 
+  const handleDeleteIncome = async (id) => {
+    const { error } = await supabase.from('daily_income').delete().eq('id', id)
+    if (error) toast.error('Gagal menghapus pemasukan')
+    else { toast.success('Pemasukan dihapus'); fetchFinance() }
+  }
+
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(productSearch.toLowerCase())
+  )
+
   const totalIncome = income.reduce((sum, i) => sum + Number(i.amount), 0)
   const totalExpense = expenses.reduce((sum, e) => sum + (Number(e.amount) * Number(e.quantity)), 0)
   const saldo = totalIncome - totalExpense
-
-  if (profile && profile.role !== 'owner') {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-2xl mb-2">🔒</p>
-          <p className="font-medium">Akses Terbatas</p>
-          <p className="text-sm text-muted-foreground">
-            Halaman keuangan hanya bisa diakses oleh owner.
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">
@@ -137,9 +164,7 @@ export default function Finance() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Pemasukan
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Pemasukan</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">
@@ -149,9 +174,7 @@ export default function Finance() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Pengeluaran
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Pengeluaran</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-500">
@@ -161,9 +184,7 @@ export default function Finance() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Saldo Bersih
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Bersih</CardTitle>
           </CardHeader>
           <CardContent>
             <p className={`text-2xl font-bold ${saldo >= 0 ? 'text-green-600' : 'text-red-500'}`}>
@@ -176,23 +197,103 @@ export default function Finance() {
       {/* Pemasukan */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pemasukan</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Pemasukan</CardTitle>
+            <Dialog open={productOpen} onOpenChange={setProductOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">+ Pemasukan Produk</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Catat Pemasukan Produk</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddProductIncome} className="space-y-4 mt-2">
+                  <div className="space-y-2">
+                    <Label>Produk *</Label>
+                    <Popover open={productPopover} onOpenChange={setProductPopover}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start font-normal">
+                          {selectedProduct ? selectedProduct.name : 'Pilih produk...'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Cari produk..."
+                            onValueChange={setProductSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>Produk tidak ditemukan</CommandEmpty>
+                            <CommandGroup>
+                              {filteredProducts.map(p => (
+                                <CommandItem
+                                  key={p.id}
+                                  onSelect={() => {
+                                    setSelectedProduct(p)
+                                    setProductForm({ quantity: 1, amount: p.base_price })
+                                    setProductPopover(false)
+                                  }}
+                                >
+                                  <span>{p.name}</span>
+                                  <span className="ml-auto text-xs text-muted-foreground">
+                                    Rp {p.base_price.toLocaleString('id-ID')}
+                                  </span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Jumlah</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={productForm.quantity}
+                        onChange={e => setProductForm({ ...productForm, quantity: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Harga per unit (Rp)</Label>
+                      <Input
+                        type="number"
+                        value={productForm.amount}
+                        onChange={e => setProductForm({ ...productForm, amount: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  {selectedProduct && (
+                    <p className="text-sm text-muted-foreground">
+                      Total: Rp {(parseFloat(productForm.amount || 0) * parseInt(productForm.quantity || 1)).toLocaleString('id-ID')}
+                    </p>
+                  )}
+                  <div className="flex justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={() => setProductOpen(false)}>Batal</Button>
+                    <Button type="submit">Simpan</Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
             <p className="text-sm text-muted-foreground text-center py-4">Memuat...</p>
           ) : income.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Belum ada pemasukan hari ini
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-4">Belum ada pemasukan</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Deskripsi</TableHead>
                   <TableHead>Jenis</TableHead>
-                  <TableHead className="text-right">Jumlah</TableHead>
+                  <TableHead className="text-right">Qty</TableHead>
                   <TableHead className="text-right">Total</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -208,6 +309,18 @@ export default function Finance() {
                     <TableCell className="text-right font-medium">
                       Rp {Number(i.amount).toLocaleString('id-ID')}
                     </TableCell>
+                    <TableCell>
+                      {i.source_type === 'product' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive"
+                          onClick={() => handleDeleteIncome(i.id)}
+                        >
+                          Hapus
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 <TableRow className="font-semibold bg-muted/50">
@@ -215,6 +328,7 @@ export default function Finance() {
                   <TableCell className="text-right text-green-600">
                     Rp {totalIncome.toLocaleString('id-ID')}
                   </TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -267,9 +381,7 @@ export default function Finance() {
                     </div>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => setExpenseOpen(false)}>
-                      Batal
-                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setExpenseOpen(false)}>Batal</Button>
                     <Button type="submit">Simpan</Button>
                   </div>
                 </form>
@@ -281,9 +393,7 @@ export default function Finance() {
           {loading ? (
             <p className="text-sm text-muted-foreground text-center py-4">Memuat...</p>
           ) : expenses.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Belum ada pengeluaran hari ini
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengeluaran</p>
           ) : (
             <Table>
               <TableHeader>
@@ -337,9 +447,7 @@ export default function Finance() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-semibold text-lg">Saldo Akhir Hari Ini</p>
-              <p className="text-sm text-muted-foreground">
-                Cocokkan dengan cash di laci
-              </p>
+              <p className="text-sm text-muted-foreground">Cocokkan dengan cash di laci</p>
             </div>
             <p className={`text-3xl font-bold ${saldo >= 0 ? 'text-green-600' : 'text-red-500'}`}>
               Rp {saldo.toLocaleString('id-ID')}
