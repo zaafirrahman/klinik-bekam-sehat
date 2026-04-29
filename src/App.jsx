@@ -12,6 +12,7 @@ import Reports from './pages/Reports/Reports'
 import Settings from './pages/Settings/Settings'
 import AppLayout from './components/AppLayout'
 import VisitDetail from './pages/Visits/VisitDetail'
+import ConsultationDetail from './pages/Consultations/ConsultationDetail'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -54,6 +55,8 @@ function App() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/patients" replace />} />
+        <Route path="/consultations" element={<Consultations />} />
+        <Route path="/consultations/:id" element={<ConsultationDetail />} />
       </Routes>
     </AppLayout>
   )
