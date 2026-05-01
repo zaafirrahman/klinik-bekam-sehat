@@ -87,11 +87,15 @@ export default function ConsultationDetail() {
   const generatePDF = async () => {
     setGeneratingPdf(true)
     try {
-      const clinicInfo = JSON.parse(localStorage.getItem('clinic_info') || '{}')
-      const clinicName = clinicInfo.name || 'Klinik Bekam Sehat Medan'
-      const clinicAddress = clinicInfo.address || '[Alamat Klinik]'
-      const clinicPhone = clinicInfo.phone || '[No. Telp Klinik]'
-      const clinicDoctor = clinicInfo.doctor || 'Klinik Bekam Sehat'
+      const { data: clinicInfo } = await supabase
+        .from('clinic_settings')
+        .select('*')
+        .eq('id', 1)
+        .single()
+      const clinicName = clinicInfo?.name || 'Klinik Bekam Sehat Medan'
+      const clinicAddress = clinicInfo?.address || '[Alamat Klinik]'
+      const clinicPhone = clinicInfo?.phone || '[No. Telp Klinik]'
+      const clinicDoctor = clinicInfo?.doctor || 'Klinik Bekam Sehat'
       const doc = new jsPDF()
       const currentYear = new Date().getFullYear()
       const pageWidth = doc.internal.pageSize.getWidth()

@@ -326,25 +326,49 @@ function ClinicTab() {
     phone: '',
     doctor: '',
   })
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem(CLINIC_INFO_KEY)
-    if (saved) setInfo(JSON.parse(saved))
+    const fetchClinicInfo = async () => {
+      const { data, error } = await supabase
+        .from('clinic_settings')
+        .select('*')
+        .eq('id', 1)
+        .single()
+      if (!error && data) setInfo(data)
+      setLoading(false)
+    }
+    fetchClinicInfo()
   }, [])
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    localStorage.setItem(CLINIC_INFO_KEY, JSON.stringify(info))
-    toast.success('Info klinik berhasil disimpan!')
+    setSaving(true)
+    const { error } = await supabase
+      .from('clinic_settings')
+      .update({
+        name: info.name,
+        address: info.address,
+        phone: info.phone,
+        doctor: info.doctor,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', 1)
+
+    if (error) toast.error('Gagal menyimpan info klinik')
+    else toast.success('Info klinik berhasil disimpan!')
+    setSaving(false)
   }
+
+  if (loading) return <p className="text-sm text-muted-foreground">Memuat...</p>
 
   return (
     <Card className="max-w-lg">
       <CardHeader>
         <CardTitle className="text-base">Informasi Klinik</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Info ini akan tampil di header surat konsultasi PDF
+          Info ini akan tampil di header surat konsultasi PDF di semua perangkat
         </p>
       </CardHeader>
       <CardContent>
@@ -377,13 +401,14 @@ function ClinicTab() {
               onChange={e => setInfo({ ...info, doctor: e.target.value })}
             />
           </div>
-          <Button type="submit" disabled={loading}>Simpan</Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? 'Menyimpan...' : 'Simpan'}
+          </Button>
         </form>
       </CardContent>
     </Card>
   )
 }
-
 // =====================
 // TAB: PENGGUNA
 // =====================

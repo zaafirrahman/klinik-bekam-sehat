@@ -106,7 +106,7 @@ export default function AppLayout({ children }) {
                     <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium truncate">{profile?.full_name || profile?.email || 'User'}</p>
+                    <p className="text-sm font-medium truncate">{profile?.full_name || 'User'}</p>
                     <p className="text-xs text-muted-foreground capitalize">{profile?.role || 'admin'}</p>
                   </div>
                 </button>

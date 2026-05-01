@@ -49,7 +49,7 @@ export default function Reports() {
     const endStr = today.toISOString().split('T')[0]
 
     // Daily income & expense
-    const [incomeRes, expenseRes, visitsRes, patientsRes, servicesRes] = await Promise.all([
+    const [incomeRes, expenseRes, visitsRes, patientsRes, servicesRes, monthlyExpenseRes] = await Promise.all([
       supabase
         .from('daily_income')
         .select('entry_date, amount')
@@ -72,6 +72,11 @@ export default function Reports() {
         .from('visit_services')
         .select('final_price, quantity, services(name, category)')
         .eq('status', 'done'),
+      supabase
+        .from('monthly_expenses')
+        .select('amount')
+        .gte('month', startStr)
+        .lte('month', endStr),
     ])
 
     // Build daily chart data
@@ -96,9 +101,13 @@ export default function Reports() {
     // Summary
     const totalIncome = incomeRes.data?.reduce((s, i) => s + Number(i.amount), 0) || 0
     const totalExpense = expenseRes.data?.reduce((s, e) => s + Number(e.amount) * Number(e.quantity), 0) || 0
+    const totalMonthlyExpense = monthlyExpenseRes.data?.reduce((s, e) => s + Number(e.amount), 0) || 0
+
     setSummary({
       totalIncome,
       totalExpense,
+      totalMonthlyExpense,
+      netProfit: totalIncome - totalExpense - totalMonthlyExpense,
       totalVisits: visitsRes.count || 0,
       totalPatients: patientsRes.count || 0,
     })
@@ -159,7 +168,7 @@ export default function Reports() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground">Total Pemasukan</CardTitle>
@@ -194,6 +203,26 @@ export default function Reports() {
           </CardHeader>
           <CardContent>
             <p className="text-xl font-bold">{summary.totalPatients}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">Pengeluaran Bulanan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-bold text-red-400">
+              Rp {summary.totalMonthlyExpense?.toLocaleString('id-ID') || 0}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className={summary.netProfit >= 0 ? 'border-green-200' : 'border-red-200'}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">Net Profit</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className={`text-xl font-bold ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+              Rp {summary.netProfit?.toLocaleString('id-ID') || 0}
+            </p>
           </CardContent>
         </Card>
       </div>
