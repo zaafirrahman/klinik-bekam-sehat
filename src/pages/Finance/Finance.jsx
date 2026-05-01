@@ -44,6 +44,9 @@ export default function Finance() {
   const [productSearch, setProductSearch] = useState('')
   const [productForm, setProductForm] = useState({ quantity: 1, amount: '' })
 
+  const [serviceBreakdown, setServiceBreakdown] = useState([])
+  const [productBreakdown, setProductBreakdown] = useState([])
+
   const fetchProducts = async () => {
     const { data } = await supabase
       .from('services')
@@ -55,7 +58,8 @@ export default function Finance() {
 
   const fetchFinance = async () => {
     setLoading(true)
-    const [incomeRes, expenseRes] = await Promise.all([
+
+    const [incomeRes, expenseRes, visitServicesRes, manualProductRes] = await Promise.all([
       supabase
         .from('daily_income')
         .select('*')
@@ -66,6 +70,26 @@ export default function Finance() {
         .select('*')
         .eq('entry_date', selectedDate)
         .order('created_at', { ascending: true }),
+      supabase
+        .from('visit_services')
+        .select(`
+          quantity,
+          services(name, category, service_code)
+        `)
+        .eq('status', 'done')
+        .in('visit_id',
+          (await supabase
+            .from('visits')
+            .select('id')
+            .eq('visit_date', selectedDate)
+          ).data?.map(v => v.id) || []
+        ),
+      supabase
+        .from('daily_income')
+        .select('description, quantity')
+        .eq('entry_date', selectedDate)
+        .eq('source_type', 'product')
+        .is('visit_service_id', null),
     ])
 
     if (incomeRes.error) toast.error('Gagal memuat pemasukan')
@@ -73,6 +97,32 @@ export default function Finance() {
 
     if (expenseRes.error) toast.error('Gagal memuat pengeluaran')
     else setExpenses(expenseRes.data || [])
+
+    // Process service breakdown (by service_code)
+    const serviceMap = {}
+    visitServicesRes.data?.forEach(vs => {
+      if (vs.services?.category !== 'layanan') return
+      const code = vs.services?.service_code || 'Lainnya'
+      const name = vs.services?.name || 'Lainnya'
+      if (!serviceMap[code]) serviceMap[code] = { code, name, qty: 0 }
+      serviceMap[code].qty += Number(vs.quantity)
+    })
+    setServiceBreakdown(Object.values(serviceMap))
+
+    // Process product breakdown (visit + manual)
+    const productMap = {}
+    visitServicesRes.data?.forEach(vs => {
+      if (vs.services?.category !== 'produk') return
+      const name = vs.services?.name
+      if (!productMap[name]) productMap[name] = { name, qty: 0 }
+      productMap[name].qty += Number(vs.quantity)
+    })
+    manualProductRes.data?.forEach(p => {
+      const name = p.description
+      if (!productMap[name]) productMap[name] = { name, qty: 0 }
+      productMap[name].qty += Number(p.quantity)
+    })
+    setProductBreakdown(Object.values(productMap))
 
     setLoading(false)
   }
@@ -335,6 +385,73 @@ export default function Finance() {
           )}
         </CardContent>
       </Card>
+
+      {/* Rincian Pemasukan */}
+      {(serviceBreakdown.length > 0 || productBreakdown.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Rincian Pemasukan</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+
+            {/* Layanan */}
+            {serviceBreakdown.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Layanan</p>
+                <Table>
+                  <TableBody>
+                    {serviceBreakdown.map(s => (
+                      <TableRow key={s.code}>
+                        <TableCell>
+                          <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded mr-2">
+                            {s.code}
+                          </span>
+                          {s.name}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {s.qty}x
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-muted/50 font-semibold">
+                      <TableCell>Total Layanan</TableCell>
+                      <TableCell className="text-right">
+                        {serviceBreakdown.reduce((sum, s) => sum + s.qty, 0)}x
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+
+            {/* Produk */}
+            {productBreakdown.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Produk</p>
+                <Table>
+                  <TableBody>
+                    {productBreakdown.map(p => (
+                      <TableRow key={p.name}>
+                        <TableCell>{p.name}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          {p.qty}x
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-muted/50 font-semibold">
+                      <TableCell>Total Produk</TableCell>
+                      <TableCell className="text-right">
+                        {productBreakdown.reduce((sum, p) => sum + p.qty, 0)}x
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pengeluaran */}
       <Card>
