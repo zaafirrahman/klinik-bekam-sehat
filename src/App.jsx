@@ -14,6 +14,7 @@ import AppLayout from './components/AppLayout'
 import VisitDetail from './pages/Visits/VisitDetail'
 import ConsultationDetail from './pages/Consultations/ConsultationDetail'
 import FinanceMonthly from './pages/Finance/FinanceMonthly'
+import PatientDetail from './pages/Patients/PatientDetail'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -59,6 +60,7 @@ function App() {
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/consultations/:id" element={<ConsultationDetail />} />
         <Route path="/finance/monthly" element={<FinanceMonthly />} />
+        <Route path="/patients/:id" element={<PatientDetail />} />
       </Routes>
     </AppLayout>
   )

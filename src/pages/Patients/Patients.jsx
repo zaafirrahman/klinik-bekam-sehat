@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
+import { useNavigate } from 'react-router-dom'
 import {
   Table, TableBody, TableCell, TableHead,
   TableHeader, TableRow,
@@ -85,6 +86,8 @@ export default function Patients() {
   // Delete
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
+
+  const navigate = useNavigate()
 
   const fetchPatients = async () => {
     setLoading(true)
@@ -237,7 +240,11 @@ export default function Patients() {
               </TableRow>
             ) : (
               patients.map(p => (
-                <TableRow key={p.id}>
+                <TableRow 
+                    key={p.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/patients/${p.id}`)}
+                  >
                   <TableCell>
                     <Badge variant="outline">{p.patient_code}</Badge>
                   </TableCell>
