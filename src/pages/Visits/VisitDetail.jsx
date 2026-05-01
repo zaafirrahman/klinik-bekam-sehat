@@ -1,3 +1,4 @@
+import { jsPDF } from 'jspdf'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -59,6 +60,8 @@ export default function VisitDetail() {
   // Delete service
   const [deleteServiceOpen, setDeleteServiceOpen] = useState(false)
   const [deleteServiceTarget, setDeleteServiceTarget] = useState(null)
+
+  const [clinicInfo, setClinicInfo] = useState(null)
   
 
   const fetchVisit = async () => {
@@ -98,7 +101,17 @@ export default function VisitDetail() {
     setServices(data || [])
   }
 
-  useEffect(() => { fetchVisit(); fetchServices() }, [id])
+  useEffect(() => {
+    fetchVisit()
+    fetchServices()
+    // Fetch clinic info
+    supabase
+      .from('clinic_settings')
+      .select('name')
+      .eq('id', 1)
+      .single()
+      .then(({ data }) => setClinicInfo(data))
+  }, [id])
 
   // EDIT VISIT
   const handleEditVisit = async (e) => {
@@ -208,7 +221,161 @@ export default function VisitDetail() {
       toast.success('Checkout berhasil! Pemasukan tercatat.')
       setCheckoutOpen(false)
       fetchVisit()
+      setTimeout(() => generateKwitansi(checkoutItems), 500)
     }
+  }
+
+  const generateKwitansi = (items) => {
+    console.log('generateKwitansi called', items, clinicInfo)
+    const doc = new jsPDF({ format: 'a5' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const margin = 15
+
+    // Header
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text(clinicInfo?.name?.toUpperCase() || 'KLINIK BEKAM SEHAT', pageWidth / 2, 18, { align: 'center' })
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    if (clinicInfo?.address) {
+      doc.text(`${clinicInfo.address} · Telp: ${clinicInfo.phone || '-'}`, pageWidth / 2, 24, { align: 'center' })
+    }
+
+    doc.setLineWidth(0.5)
+    doc.line(margin, 28, pageWidth - margin, 28)
+
+    // Judul
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.text('KWITANSI PEMBAYARAN', pageWidth / 2, 36, { align: 'center' })
+
+    doc.setLineWidth(0.3)
+    doc.line(margin, 40, pageWidth - margin, 40)
+
+    // Info pasien
+    let y = 48
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+
+    const tanggal = new Date(visit.visit_date).toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    })
+
+    const infoRows = [
+      ['Tanggal', tanggal],
+      ['Pasien', `${visit.patients?.name} (${visit.patients?.patient_code})`],
+      ['Telepon', visit.patients?.phone || '-'],
+    ]
+
+    infoRows.forEach(([label, value]) => {
+      doc.setFont('helvetica', 'bold')
+      doc.text(label, margin, y)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`: ${value}`, margin + 25, y)
+      y += 7
+    })
+
+    y += 3
+    doc.line(margin, y, pageWidth - margin, y)
+    y += 7
+
+    // Tabel layanan
+    doc.setFont('helvetica', 'bold')
+    doc.text('Layanan / Produk', margin, y)
+    doc.text('Qty', pageWidth - margin - 40, y)
+    doc.text('Total', pageWidth - margin, y, { align: 'right' })
+    y += 5
+    doc.line(margin, y, pageWidth - margin, y)
+    y += 6
+
+    doc.setFont('helvetica', 'normal')
+    items.forEach(s => {
+      const subtotal = parseFloat(s.final_price) * parseInt(s.quantity)
+      const nameLine = doc.splitTextToSize(s.services?.name || '-', pageWidth - margin * 2 - 50)
+      doc.text(nameLine, margin, y)
+      doc.text(`${s.quantity}x`, pageWidth - margin - 40, y)
+      doc.text(`Rp ${subtotal.toLocaleString('id-ID')}`, pageWidth - margin, y, { align: 'right' })
+      y += nameLine.length * 5 + 3
+
+      if (s.note) {
+        doc.setFontSize(8)
+        doc.setTextColor(128)
+        doc.text(`  (${s.note})`, margin, y)
+        doc.setTextColor(0)
+        doc.setFontSize(9)
+        y += 5
+      }
+    })
+
+    y += 2
+    doc.line(margin, y, pageWidth - margin, y)
+    y += 7
+
+    // Total
+    const total = items.reduce((sum, s) => sum + parseFloat(s.final_price) * parseInt(s.quantity), 0)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('TOTAL', margin, y)
+    doc.text(`Rp ${total.toLocaleString('id-ID')}`, pageWidth - margin, y, { align: 'right' })
+
+    y += 10
+    doc.setLineWidth(0.5)
+    doc.line(margin, y, pageWidth - margin, y)
+    y += 10
+
+    // Footer
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(100)
+    doc.text('Terima kasih telah mempercayakan kesehatan Anda kepada kami', pageWidth / 2, y, { align: 'center' })
+    doc.setTextColor(0)
+
+    // Download
+    const fileName = `kwitansi_${visit.patients?.patient_code}_${visit.visit_date}.pdf`
+    doc.save(fileName)
+  }
+
+  const handleSendWhatsApp = () => {
+    if (!visit.patients?.phone) {
+      toast.error('Nomor telepon pasien tidak ada!')
+      return
+    }
+
+    const doneItems = visit.visit_services?.filter(s => s.status === 'done') || []
+    if (doneItems.length === 0) {
+      toast.error('Belum ada layanan yang selesai!')
+      return
+    }
+
+    // Format nomor WA (hapus 0 di depan, ganti dengan 62)
+    let phone = visit.patients.phone.replace(/\D/g, '')
+    if (phone.startsWith('0')) phone = '62' + phone.slice(1)
+    if (!phone.startsWith('62')) phone = '62' + phone
+
+    // Format pesan kwitansi
+    const tanggal = new Date(visit.visit_date).toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    })
+
+    const itemLines = doneItems
+      .map(s => `• ${s.services?.name} x${s.quantity} — Rp ${(s.final_price * s.quantity).toLocaleString('id-ID')}`)
+      .join('\n')
+
+    const total = doneItems.reduce((sum, s) => sum + s.final_price * s.quantity, 0)
+
+    const pesan = 
+      `*${clinicInfo?.name || 'Klinik Bekam Sehat'}*
+
+      Halo kak, terima kasih sudah berkunjung hari ini
+
+      Kwitansi pembayaran terlampir.
+      Total: *Rp ${total.toLocaleString('id-ID')}*
+
+      Semoga lekas sehat!`
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(pesan)}`
+    window.open(url, '_blank')
   }
 
   const filteredServices = services.filter(s =>
@@ -239,6 +406,16 @@ export default function VisitDetail() {
           </div>
         </div>
         <div className="flex gap-2">
+          {doneItems.length > 0 && visit.patients?.phone && (
+            <Button variant="outline" onClick={handleSendWhatsApp}>
+              📱 Kirim Kwitansi WA
+            </Button>
+          )}
+          {doneItems.length > 0 && (
+            <Button variant="outline" onClick={() => generateKwitansi(doneItems)}>
+              📄 Download Kwitansi
+            </Button>
+          )}
           <Button variant="outline" onClick={() => setEditOpen(true)}>Edit</Button>
           <Button 
             variant="destructive" 
