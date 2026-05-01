@@ -38,6 +38,9 @@ export default function FinanceMonthly() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
 
+  const [serviceBreakdown, setServiceBreakdown] = useState([])
+  const [productBreakdown, setProductBreakdown] = useState([])
+
   const [profile, setProfile] = useState(null)
 
     useEffect(() => {
@@ -62,7 +65,7 @@ export default function FinanceMonthly() {
     const endDate = `${year}-${month}-${lastDay}`
     const monthDate = startDate
 
-    const [incomeRes, dailyExpenseRes, monthlyExpenseRes] = await Promise.all([
+    const [incomeRes, dailyExpenseRes, monthlyExpenseRes, visitServicesRes, manualProductRes] = await Promise.all([
       supabase
         .from('daily_income')
         .select('amount')
@@ -78,6 +81,25 @@ export default function FinanceMonthly() {
         .select('*')
         .eq('month', monthDate)
         .order('created_at', { ascending: true }),
+      supabase
+        .from('visit_services')
+        .select(`quantity, services(name, category, service_code)`)
+        .eq('status', 'done')
+        .in('visit_id',
+          (await supabase
+            .from('visits')
+            .select('id')
+            .gte('visit_date', startDate)
+            .lte('visit_date', endDate)
+          ).data?.map(v => v.id) || []
+        ),
+      supabase
+        .from('daily_income')
+        .select('description, quantity')
+        .gte('entry_date', startDate)
+        .lte('entry_date', endDate)
+        .eq('source_type', 'product')
+        .is('visit_service_id', null),
     ])
 
     if (incomeRes.error) toast.error('Gagal memuat pemasukan')
@@ -92,6 +114,32 @@ export default function FinanceMonthly() {
 
     if (monthlyExpenseRes.error) toast.error('Gagal memuat pengeluaran bulanan')
     else setMonthlyExpenses(monthlyExpenseRes.data || [])
+
+    // Service breakdown
+    const serviceMap = {}
+    visitServicesRes.data?.forEach(vs => {
+      if (vs.services?.category !== 'layanan') return
+      const code = vs.services?.service_code || 'Lainnya'
+      const name = vs.services?.name || 'Lainnya'
+      if (!serviceMap[code]) serviceMap[code] = { code, name, qty: 0 }
+      serviceMap[code].qty += Number(vs.quantity)
+    })
+    setServiceBreakdown(Object.values(serviceMap))
+
+    // Product breakdown
+    const productMap = {}
+    visitServicesRes.data?.forEach(vs => {
+      if (vs.services?.category !== 'produk') return
+      const name = vs.services?.name
+      if (!productMap[name]) productMap[name] = { name, qty: 0 }
+      productMap[name].qty += Number(vs.quantity)
+    })
+    manualProductRes.data?.forEach(p => {
+      const name = p.description
+      if (!productMap[name]) productMap[name] = { name, qty: 0 }
+      productMap[name].qty += Number(p.quantity)
+    })
+    setProductBreakdown(Object.values(productMap))
 
     setLoading(false)
   }
@@ -255,6 +303,65 @@ export default function FinanceMonthly() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Rincian Pemasukan Bulanan */}
+      {(serviceBreakdown.length > 0 || productBreakdown.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Rincian Pemasukan {monthLabel}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {serviceBreakdown.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Layanan</p>
+                <Table>
+                  <TableBody>
+                    {serviceBreakdown.map(s => (
+                      <TableRow key={s.code}>
+                        <TableCell>
+                          <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded mr-2">
+                            {s.code}
+                          </span>
+                          {s.name}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">{s.qty}x</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-muted/50 font-semibold">
+                      <TableCell>Total Layanan</TableCell>
+                      <TableCell className="text-right">
+                        {serviceBreakdown.reduce((sum, s) => sum + s.qty, 0)}x
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+
+            {productBreakdown.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Produk</p>
+                <Table>
+                  <TableBody>
+                    {productBreakdown.map(p => (
+                      <TableRow key={p.name}>
+                        <TableCell>{p.name}</TableCell>
+                        <TableCell className="text-right font-medium">{p.qty}x</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-muted/50 font-semibold">
+                      <TableCell>Total Produk</TableCell>
+                      <TableCell className="text-right">
+                        {productBreakdown.reduce((sum, p) => sum + p.qty, 0)}x
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pengeluaran Bulanan */}
       <Card>
