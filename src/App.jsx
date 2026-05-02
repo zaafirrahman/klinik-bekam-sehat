@@ -15,6 +15,8 @@ import VisitDetail from './pages/Visits/VisitDetail'
 import ConsultationDetail from './pages/Consultations/ConsultationDetail'
 import FinanceMonthly from './pages/Finance/FinanceMonthly'
 import PatientDetail from './pages/Patients/PatientDetail'
+import PortalLogin from './pages/Portal/PortalLogin'
+import PortalDashboard from './pages/Portal/PortalDashboard'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -39,6 +41,8 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/portal" element={<PortalLogin />} />
+        <Route path="/portal/dashboard" element={<PortalDashboard />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     )
@@ -46,23 +50,32 @@ function App() {
   
   // Sudah login
   return (
-    <AppLayout>
-      <Routes>
-        <Route path="/" element={<Navigate to="/patients" replace />} />
-        <Route path="/patients" element={<Patients />} />
-        <Route path="/visits" element={<Visits />} />
-        <Route path="/visits/:id" element={<VisitDetail />} />
-        <Route path="/finance" element={<Finance />} />
-        <Route path="/consultations" element={<Consultations />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/patients" replace />} />
-        <Route path="/consultations" element={<Consultations />} />
-        <Route path="/consultations/:id" element={<ConsultationDetail />} />
-        <Route path="/finance/monthly" element={<FinanceMonthly />} />
-        <Route path="/patients/:id" element={<PatientDetail />} />
-      </Routes>
-    </AppLayout>
+    <Routes>
+      {/* Portal routes - tanpa AppLayout */}
+      <Route path="/portal" element={<PortalLogin />} />
+      <Route path="/portal/dashboard" element={<PortalDashboard />} />
+      
+      {/* Admin routes - dengan AppLayout */}
+      <Route path="/*" element={
+        <AppLayout>
+          <Routes>
+            <Route path="/" element={<Navigate to="/patients" replace />} />
+            <Route path="/patients" element={<Patients />} />
+            <Route path="/visits" element={<Visits />} />
+            <Route path="/visits/:id" element={<VisitDetail />} />
+            <Route path="/finance" element={<Finance />} />
+            <Route path="/consultations" element={<Consultations />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/patients" replace />} />
+            <Route path="/consultations" element={<Consultations />} />
+            <Route path="/consultations/:id" element={<ConsultationDetail />} />
+            <Route path="/finance/monthly" element={<FinanceMonthly />} />
+            <Route path="/patients/:id" element={<PatientDetail />} />
+          </Routes>
+        </AppLayout>
+      } />
+    </Routes>
   )
 }
 

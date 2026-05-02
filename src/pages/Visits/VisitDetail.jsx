@@ -365,14 +365,17 @@ export default function VisitDetail() {
     const total = doneItems.reduce((sum, s) => sum + s.final_price * s.quantity, 0)
 
     const pesan = 
-      `*${clinicInfo?.name || 'Klinik Bekam Sehat'}*
+    `*${clinicInfo?.name || 'Klinik Bekam Sehat'}*
 
-      Halo kak, terima kasih sudah berkunjung hari ini
+    Halo kak, terima kasih sudah berkunjung hari ini!
 
-      Kwitansi pembayaran terlampir.
-      Total: *Rp ${total.toLocaleString('id-ID')}*
+    Kwitansi pembayaran terlampir.
+    Total: *Rp ${total.toLocaleString('id-ID')}*
 
-      Semoga lekas sehat!`
+    Cek riwayat kunjungan Anda di:
+    https://klinikbekamsehat.netlify.app/portal
+
+    Semoga lekas sehat!`
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(pesan)}`
     window.open(url, '_blank')
