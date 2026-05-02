@@ -276,7 +276,44 @@ export default function Consultations() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
+      {/* Mobile: Card List */}
+      <div className="md:hidden space-y-2">
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">Memuat data...</p>
+        ) : consultations.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">Belum ada data konsultasi</p>
+        ) : (
+          consultations.map(c => (
+            <div
+              key={c.id}
+              className="border rounded-lg p-3 cursor-pointer hover:bg-muted/50 active:bg-muted transition-colors"
+              onClick={() => navigate(`/consultations/${c.id}`)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-medium text-sm truncate">{c.patients?.name}</p>
+                  <p className="text-xs text-muted-foreground">{c.patients?.patient_code} · {c.consult_date}</p>
+                </div>
+                <Badge variant="outline" className="font-mono text-xs shrink-0">
+                  {c.reg_number}
+                </Badge>
+              </div>
+              {c.complaint && (
+                <p className="text-xs text-muted-foreground mt-1.5 truncate">
+                  {c.complaint}
+                </p>
+              )}
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-muted-foreground">
+                  {c.letter_url ? '📄 PDF tersedia' : 'Belum ada PDF'}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

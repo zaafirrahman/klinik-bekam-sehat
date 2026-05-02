@@ -234,7 +234,52 @@ export default function Visits() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
+      {/* Mobile: Card List */}
+      <div className="md:hidden space-y-2">
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">Memuat data...</p>
+        ) : visits.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">Belum ada kunjungan</p>
+        ) : (
+          visits.map(v => {
+            const status = getVisitStatus(v)
+            return (
+              <div
+                key={v.id}
+                className="border rounded-lg p-3 cursor-pointer hover:bg-muted/50 active:bg-muted transition-colors"
+                onClick={() => navigate(`/visits/${v.id}`)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm">{v.patients?.name}</p>
+                    <p className="text-xs text-muted-foreground">{v.patients?.patient_code} · {v.visit_date}</p>
+                  </div>
+                  <Badge variant={status.variant} className="text-xs shrink-0">
+                    {status.label}
+                  </Badge>
+                </div>
+                {v.chief_complaint && (
+                  <p className="text-xs text-muted-foreground mt-1.5 truncate">
+                    {v.chief_complaint}
+                  </p>
+                )}
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs text-muted-foreground">
+                    TD: {v.blood_pressure || '-'}
+                  </p>
+                  {totalBill(v) > 0 && (
+                    <p className="text-sm font-medium text-green-600">
+                      Rp {totalBill(v).toLocaleString('id-ID')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
