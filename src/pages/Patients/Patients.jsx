@@ -213,7 +213,46 @@ export default function Patients() {
         className="max-w-sm"
       />
 
-      <div className="rounded-md border">
+      {/* Mobile: Card List */}
+      <div className="md:hidden space-y-2">
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">Memuat data...</p>
+        ) : patients.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">
+            {search ? 'Pasien tidak ditemukan' : 'Belum ada pasien terdaftar'}
+          </p>
+        ) : (
+          patients.map(p => (
+            <div
+              key={p.id}
+              className="border rounded-lg p-3 cursor-pointer hover:bg-muted/50 active:bg-muted transition-colors"
+              onClick={() => navigate(`/patients/${p.id}`)}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Badge variant="outline" className="font-mono text-xs shrink-0">{p.patient_code}</Badge>
+                  <p className="font-medium text-sm truncate">{p.name}</p>
+                </div>
+                <p className="text-xs text-muted-foreground shrink-0">
+                  {p.birth_year ? `${currentYear - p.birth_year} th` : '-'}
+                </p>
+              </div>
+              <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
+                <span>{p.phone || 'No telp -'}</span>
+                {p.address && <span className="truncate">· {p.address}</span>}
+              </div>
+              <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
+                <Button size="sm" variant="outline" className="h-7 text-xs flex-1"
+                  onClick={() => openEdit(p)}>Edit</Button>
+                <Button size="sm" variant="destructive" className="h-7 text-xs flex-1"
+                  onClick={() => openDelete(p)}>Hapus</Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

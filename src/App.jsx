@@ -17,6 +17,7 @@ import FinanceMonthly from './pages/Finance/FinanceMonthly'
 import PatientDetail from './pages/Patients/PatientDetail'
 import PortalLogin from './pages/Portal/PortalLogin'
 import PortalDashboard from './pages/Portal/PortalDashboard'
+import Landing from './pages/Landing/Landing'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -40,6 +41,7 @@ function App() {
   if (!session) {
     return (
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/portal" element={<PortalLogin />} />
         <Route path="/portal/dashboard" element={<PortalDashboard />} />
@@ -59,7 +61,7 @@ function App() {
       <Route path="/*" element={
         <AppLayout>
           <Routes>
-            <Route path="/" element={<Navigate to="/patients" replace />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/patients" element={<Patients />} />
             <Route path="/visits" element={<Visits />} />
             <Route path="/visits/:id" element={<VisitDetail />} />
