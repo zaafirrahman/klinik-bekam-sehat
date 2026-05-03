@@ -204,7 +204,7 @@ export default function FinanceMonthly() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3">
         <div>
           <h1 className="text-2xl font-semibold">Keuangan Bulanan</h1>
           <p className="text-sm text-muted-foreground">Rekap & pengeluaran besar per bulan</p>
@@ -213,7 +213,7 @@ export default function FinanceMonthly() {
           type="month"
           value={selectedMonth}
           onChange={e => setSelectedMonth(e.target.value)}
-          className="w-auto"
+          className="w-full md:w-auto"
         />
       </div>
 
@@ -276,27 +276,27 @@ export default function FinanceMonthly() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b">
+            <div className="flex justify-between items-center py-2 border-b gap-2">
               <span className="text-muted-foreground">Total Pemasukan</span>
-              <span className="font-medium text-green-600">
+              <span className="font-medium text-green-600 shrink-0">
                 + Rp {monthlyIncome.toLocaleString('id-ID')}
               </span>
             </div>
-            <div className="flex justify-between py-2 border-b">
-              <span className="text-muted-foreground">Pengeluaran Operasional Harian</span>
-              <span className="font-medium text-red-400">
+            <div className="flex justify-between items-center py-2 border-b gap-2">
+              <span className="text-muted-foreground">Pengeluaran Harian</span>
+              <span className="font-medium text-red-400 shrink-0">
                 - Rp {monthlyDailyExpense.toLocaleString('id-ID')}
               </span>
             </div>
-            <div className="flex justify-between py-2 border-b">
-              <span className="text-muted-foreground">Pengeluaran Bulanan (gaji, dll)</span>
-              <span className="font-medium text-red-500">
+            <div className="flex justify-between items-center py-2 border-b gap-2">
+              <span className="text-muted-foreground">Pengeluaran Bulanan</span>
+              <span className="font-medium text-red-500 shrink-0">
                 - Rp {totalMonthlyExpense.toLocaleString('id-ID')}
               </span>
             </div>
-            <div className="flex justify-between py-2 font-semibold text-base">
+            <div className="flex justify-between items-center py-2 font-semibold text-base gap-2">
               <span>Net Profit</span>
-              <span className={netProfit >= 0 ? 'text-green-600' : 'text-red-500'}>
+              <span className={`shrink-0 ${netProfit >= 0 ? 'text-green-600' : 'text-red-500'}`}>
                 Rp {netProfit.toLocaleString('id-ID')}
               </span>
             </div>
@@ -415,42 +415,69 @@ export default function FinanceMonthly() {
               Belum ada pengeluaran bulanan
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead className="text-right">Nominal</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile */}
+              <div className="md:hidden space-y-2">
                 {monthlyExpenses.map(e => (
-                  <TableRow key={e.id}>
-                    <TableCell>{e.description}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      Rp {Number(e.amount).toLocaleString('id-ID')}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive"
-                        onClick={() => { setDeleteTarget(e); setDeleteOpen(true) }}
-                      >
-                        Hapus
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <div key={e.id} className="border rounded-lg p-3 overflow-hidden">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium min-w-0 flex-1 line-clamp-2 break-words">
+                        {e.description}
+                      </p>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <p className="text-sm font-medium text-red-500">
+                          Rp {Number(e.amount).toLocaleString('id-ID')}
+                        </p>
+                        <Button size="sm" variant="ghost" className="text-destructive h-6 text-xs p-1"
+                          onClick={() => { setDeleteTarget(e); setDeleteOpen(true) }}>
+                          Hapus
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-                <TableRow className="font-semibold bg-muted/50">
-                  <TableCell>Total Pengeluaran Bulanan</TableCell>
-                  <TableCell className="text-right text-red-500">
-                    Rp {totalMonthlyExpense.toLocaleString('id-ID')}
-                  </TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                <div className="flex justify-between font-semibold text-sm pt-2 border-t px-1">
+                  <span>Total Pengeluaran</span>
+                  <span className="text-red-500">Rp {totalMonthlyExpense.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+
+              {/* Desktop */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Deskripsi</TableHead>
+                      <TableHead className="text-right">Nominal</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {monthlyExpenses.map(e => (
+                      <TableRow key={e.id}>
+                        <TableCell>{e.description}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          Rp {Number(e.amount).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell>
+                          <Button size="sm" variant="ghost" className="text-destructive"
+                            onClick={() => { setDeleteTarget(e); setDeleteOpen(true) }}>
+                            Hapus
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="font-semibold bg-muted/50">
+                      <TableCell>Total Pengeluaran Bulanan</TableCell>
+                      <TableCell className="text-right text-red-500">
+                        Rp {totalMonthlyExpense.toLocaleString('id-ID')}
+                      </TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -197,7 +197,7 @@ export default function Finance() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3">
         <div>
           <h1 className="text-2xl font-semibold">Keuangan Harian</h1>
           <p className="text-sm text-muted-foreground">Rekap pemasukan & pengeluaran</p>
@@ -206,7 +206,7 @@ export default function Finance() {
           type="date"
           value={selectedDate}
           onChange={e => setSelectedDate(e.target.value)}
-          className="w-auto"
+          className="w-full md:w-auto"
         />
       </div>
 
@@ -336,52 +336,87 @@ export default function Finance() {
           ) : income.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">Belum ada pemasukan</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead>Jenis</TableHead>
-                  <TableHead className="text-right">Qty</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile */}
+              <div className="md:hidden space-y-2">
                 {income.map(i => (
-                  <TableRow key={i.id}>
-                    <TableCell>{i.description}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {i.source_type === 'service' ? 'Layanan' : 'Produk'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{i.quantity}x</TableCell>
-                    <TableCell className="text-right font-medium">
-                      Rp {Number(i.amount).toLocaleString('id-ID')}
-                    </TableCell>
-                    <TableCell>
-                      {i.source_type === 'product' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive"
-                          onClick={() => handleDeleteIncome(i.id)}
-                        >
-                          Hapus
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
+                  <div key={i.id} className="border rounded-lg p-3 overflow-hidden">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium line-clamp-2" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                          {i.description}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant="outline" className="text-xs">
+                            {i.source_type === 'service' ? 'Layanan' : 'Produk'}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">{i.quantity}x</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <p className="text-sm font-medium">Rp {Number(i.amount).toLocaleString('id-ID')}</p>
+                        {i.source_type === 'product' && (
+                          <Button size="sm" variant="ghost" className="text-destructive h-6 text-xs p-1"
+                            onClick={() => handleDeleteIncome(i.id)}>
+                            Hapus
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-                <TableRow className="font-semibold bg-muted/50">
-                  <TableCell colSpan={3}>Total Pemasukan</TableCell>
-                  <TableCell className="text-right text-green-600">
-                    Rp {totalIncome.toLocaleString('id-ID')}
-                  </TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                <div className="flex justify-between font-semibold text-sm pt-2 border-t px-1">
+                  <span>Total Pemasukan</span>
+                  <span className="text-green-600">Rp {totalIncome.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+
+              {/* Desktop */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Deskripsi</TableHead>
+                      <TableHead>Jenis</TableHead>
+                      <TableHead className="text-right">Qty</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {income.map(i => (
+                      <TableRow key={i.id}>
+                        <TableCell>{i.description}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {i.source_type === 'service' ? 'Layanan' : 'Produk'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{i.quantity}x</TableCell>
+                        <TableCell className="text-right font-medium">
+                          Rp {Number(i.amount).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell>
+                          {i.source_type === 'product' && (
+                            <Button size="sm" variant="ghost" className="text-destructive"
+                              onClick={() => handleDeleteIncome(i.id)}>
+                              Hapus
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="font-semibold bg-muted/50">
+                      <TableCell colSpan={3}>Total Pemasukan</TableCell>
+                      <TableCell className="text-right text-green-600">
+                        Rp {totalIncome.toLocaleString('id-ID')}
+                      </TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -512,48 +547,80 @@ export default function Finance() {
           ) : expenses.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengeluaran</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead className="text-right">Qty</TableHead>
-                  <TableHead className="text-right">Nominal</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile */}
+              <div className="md:hidden space-y-2">
                 {expenses.map(e => (
-                  <TableRow key={e.id}>
-                    <TableCell>{e.description}</TableCell>
-                    <TableCell className="text-right">{e.quantity}x</TableCell>
-                    <TableCell className="text-right">
-                      Rp {Number(e.amount).toLocaleString('id-ID')}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      Rp {(Number(e.amount) * Number(e.quantity)).toLocaleString('id-ID')}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive"
-                        onClick={() => handleDeleteExpense(e.id)}
-                      >
-                        Hapus
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <div key={e.id} className="border rounded-lg p-3 overflow-hidden">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium line-clamp-2 break-words">
+                          {e.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {e.quantity}x · Rp {Number(e.amount).toLocaleString('id-ID')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <p className="text-sm font-medium text-red-500">
+                          Rp {(Number(e.amount) * Number(e.quantity)).toLocaleString('id-ID')}
+                        </p>
+                        <Button size="sm" variant="ghost" className="text-destructive h-6 text-xs p-1"
+                          onClick={() => handleDeleteExpense(e.id)}>
+                          Hapus
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-                <TableRow className="font-semibold bg-muted/50">
-                  <TableCell colSpan={3}>Total Pengeluaran</TableCell>
-                  <TableCell className="text-right text-red-500">
-                    Rp {totalExpense.toLocaleString('id-ID')}
-                  </TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                <div className="flex justify-between font-semibold text-sm pt-2 border-t px-1">
+                  <span>Total Pengeluaran</span>
+                  <span className="text-red-500">Rp {totalExpense.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+
+              {/* Desktop */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Deskripsi</TableHead>
+                      <TableHead className="text-right">Qty</TableHead>
+                      <TableHead className="text-right">Nominal</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expenses.map(e => (
+                      <TableRow key={e.id}>
+                        <TableCell>{e.description}</TableCell>
+                        <TableCell className="text-right">{e.quantity}x</TableCell>
+                        <TableCell className="text-right">
+                          Rp {Number(e.amount).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          Rp {(Number(e.amount) * Number(e.quantity)).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell>
+                          <Button size="sm" variant="ghost" className="text-destructive"
+                            onClick={() => handleDeleteExpense(e.id)}>
+                            Hapus
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="font-semibold bg-muted/50">
+                      <TableCell colSpan={3}>Total Pengeluaran</TableCell>
+                      <TableCell className="text-right text-red-500">
+                        Rp {totalExpense.toLocaleString('id-ID')}
+                      </TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -561,7 +628,16 @@ export default function Finance() {
       {/* Saldo Akhir */}
       <Card className={saldo >= 0 ? 'border-green-200' : 'border-red-200'}>
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+          {/* Mobile */}
+          <div className="md:hidden text-center space-y-1">
+            <p className="font-semibold text-lg">Saldo Akhir Hari Ini</p>
+            <p className="text-sm text-muted-foreground">Cocokkan dengan cash di laci</p>
+            <p className={`text-3xl font-bold pt-2 ${saldo >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+              Rp {saldo.toLocaleString('id-ID')}
+            </p>
+          </div>
+          {/* Desktop */}
+          <div className="hidden md:flex items-center justify-between">
             <div>
               <p className="font-semibold text-lg">Saldo Akhir Hari Ini</p>
               <p className="text-sm text-muted-foreground">Cocokkan dengan cash di laci</p>
