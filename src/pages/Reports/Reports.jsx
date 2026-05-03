@@ -144,7 +144,7 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3">
         <div>
           <h1 className="text-2xl font-semibold">Laporan</h1>
           <p className="text-sm text-muted-foreground">Ringkasan performa klinik</p>
@@ -168,23 +168,23 @@ export default function Reports() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Total Pemasukan</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">Pemasukan</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold text-green-600">
+            <p className="text-base font-bold text-green-600">
               Rp {summary.totalIncome.toLocaleString('id-ID')}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Total Pengeluaran</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">Pengeluaran</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold text-red-500">
+            <p className="text-base font-bold text-red-500">
               Rp {summary.totalExpense.toLocaleString('id-ID')}
             </p>
           </CardContent>
@@ -194,15 +194,15 @@ export default function Reports() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Kunjungan</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold">{summary.totalVisits}</p>
+            <p className="text-base font-bold">{summary.totalVisits}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Total Pasien</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">Pasien</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold">{summary.totalPatients}</p>
+            <p className="text-base font-bold">{summary.totalPatients}</p>
           </CardContent>
         </Card>
         <Card>
@@ -210,7 +210,7 @@ export default function Reports() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Pengeluaran Bulanan</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold text-red-400">
+            <p className="text-base font-bold text-red-400">
               Rp {summary.totalMonthlyExpense?.toLocaleString('id-ID') || 0}
             </p>
           </CardContent>
@@ -220,13 +220,13 @@ export default function Reports() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Net Profit</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-xl font-bold ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+            <p className={`text-base font-bold ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-500'}`}>
               Rp {summary.netProfit?.toLocaleString('id-ID') || 0}
             </p>
           </CardContent>
         </Card>
       </div>
-
+  
       {/* Grafik Harian */}
       <Card>
         <CardHeader>
@@ -236,11 +236,11 @@ export default function Reports() {
           {loading ? (
             <p className="text-sm text-muted-foreground text-center py-8">Memuat grafik...</p>
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={dailyData} margin={{ top: 5, right: 10, left: 20, bottom: 5 }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={dailyData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tickFormatter={v => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tickFormatter={v => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 10 }} width={35} />
                 <Tooltip formatter={(val) => formatRp(val)} />
                 <Bar dataKey="pemasukan" name="Pemasukan" fill="#22c55e" radius={[4,4,0,0]} />
                 <Bar dataKey="pengeluaran" name="Pengeluaran" fill="#ef4444" radius={[4,4,0,0]} />
@@ -259,14 +259,14 @@ export default function Reports() {
           {loading ? (
             <p className="text-sm text-muted-foreground text-center py-8">Memuat grafik...</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={dailyData.map(d => ({
-                ...d,
-                saldo: d.pemasukan - d.pengeluaran
-              }))} margin={{ top: 5, right: 10, left: 20, bottom: 5 }}>
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart
+                data={dailyData.map(d => ({ ...d, saldo: d.pemasukan - d.pengeluaran }))}
+                margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tickFormatter={v => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tickFormatter={v => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 10 }} width={35} />
                 <Tooltip formatter={(val) => formatRp(val)} />
                 <Line
                   type="monotone"
@@ -274,7 +274,7 @@ export default function Reports() {
                   name="Saldo"
                   stroke="#6366f1"
                   strokeWidth={2}
-                  dot={{ r: 4 }}
+                  dot={{ r: 3 }}
                 />
               </LineChart>
             </ResponsiveContainer>

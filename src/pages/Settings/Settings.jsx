@@ -230,7 +230,57 @@ function ServicesTab() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
+      {/* Mobile */}
+      <div className="md:hidden space-y-2">
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">Memuat...</p>
+        ) : services.map(s => (
+          <div key={s.id} className={`border rounded-lg p-3 ${!s.is_active ? 'opacity-50' : ''}`}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-medium text-sm">{s.name}</p>
+                  <Badge variant="outline" className="text-xs">{s.category}</Badge>
+                  {s.service_code && (
+                    <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                      {s.service_code}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  <span>Rp {Number(s.base_price).toLocaleString('id-ID')}</span>
+                  {s.unit && <span>· {s.unit}</span>}
+                </div>
+              </div>
+              <Switch
+                checked={s.is_active}
+                onCheckedChange={() => handleToggleActive(s)}
+              />
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button size="sm" variant="outline" className="flex-1 h-7 text-xs"
+                onClick={() => {
+                  setEditTarget(s)
+                  setEditForm({
+                    name: s.name,
+                    category: s.category,
+                    service_code: s.service_code || '',
+                    base_price: s.base_price,
+                    unit: s.unit || '',
+                  })
+                  setEditOpen(true)
+                }}>Edit</Button>
+              <Button size="sm" variant="destructive" className="flex-1 h-7 text-xs"
+                onClick={() => { setDeleteTarget(s); setDeleteOpen(true) }}>
+                Hapus
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -251,17 +301,12 @@ function ServicesTab() {
             ) : services.map(s => (
               <TableRow key={s.id} className={!s.is_active ? 'opacity-50' : ''}>
                 <TableCell className="font-medium">{s.name}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">{s.category}</Badge>
-                </TableCell>
+                <TableCell><Badge variant="outline">{s.category}</Badge></TableCell>
                 <TableCell>{s.service_code || '-'}</TableCell>
                 <TableCell>Rp {Number(s.base_price).toLocaleString('id-ID')}</TableCell>
                 <TableCell>{s.unit || '-'}</TableCell>
                 <TableCell>
-                  <Switch
-                    checked={s.is_active}
-                    onCheckedChange={() => handleToggleActive(s)}
-                  />
+                  <Switch checked={s.is_active} onCheckedChange={() => handleToggleActive(s)} />
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
@@ -468,38 +513,19 @@ function UsersTab() {
             <form onSubmit={handleAddUser} className="space-y-4 mt-2">
               <div className="space-y-2">
                 <Label>Nama Lengkap *</Label>
-                <Input
-                  value={form.full_name}
-                  onChange={e => setForm({ ...form, full_name: e.target.value })}
-                  required
-                />
+                <Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} required />
               </div>
               <div className="space-y-2">
                 <Label>Email *</Label>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                  required
-                />
+                <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
               </div>
               <div className="space-y-2">
                 <Label>Password *</Label>
-                <Input
-                  type="password"
-                  placeholder="Min. 6 karakter"
-                  value={form.password}
-                  onChange={e => setForm({ ...form, password: e.target.value })}
-                  required
-                />
+                <Input type="password" placeholder="Min. 6 karakter" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
               </div>
               <div className="space-y-2">
                 <Label>Role *</Label>
-                <select
-                  className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-                  value={form.role}
-                  onChange={e => setForm({ ...form, role: e.target.value })}
-                >
+                <select className="w-full border rounded-md px-3 py-2 text-sm bg-background" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
                   <option value="admin">Admin</option>
                   <option value="owner">Owner</option>
                 </select>
@@ -512,7 +538,40 @@ function UsersTab() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
+      {/* Mobile */}
+      <div className="md:hidden space-y-2">
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">Memuat...</p>
+        ) : users.map(u => (
+          <div key={u.id} className="border rounded-lg p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-medium text-sm">{u.full_name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {new Date(u.created_at).toLocaleDateString('id-ID')}
+                </p>
+              </div>
+              <Badge variant={u.role === 'owner' ? 'default' : 'secondary'}>
+                {u.role}
+              </Badge>
+            </div>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-xs text-muted-foreground font-mono">{u.id.slice(0, 8)}...</p>
+              <select
+                className="border rounded px-2 py-1 text-xs bg-background"
+                value={u.role}
+                onChange={e => handleUpdateRole(u.id, e.target.value)}
+              >
+                <option value="admin">Admin</option>
+                <option value="owner">Owner</option>
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -531,17 +590,11 @@ function UsersTab() {
             ) : users.map(u => (
               <TableRow key={u.id}>
                 <TableCell className="font-medium">{u.full_name}</TableCell>
-                <TableCell className="text-xs text-muted-foreground font-mono">
-                  {u.id.slice(0, 8)}...
-                </TableCell>
+                <TableCell className="text-xs text-muted-foreground font-mono">{u.id.slice(0, 8)}...</TableCell>
                 <TableCell>
-                  <Badge variant={u.role === 'owner' ? 'default' : 'secondary'}>
-                    {u.role}
-                  </Badge>
+                  <Badge variant={u.role === 'owner' ? 'default' : 'secondary'}>{u.role}</Badge>
                 </TableCell>
-                <TableCell>
-                  {new Date(u.created_at).toLocaleDateString('id-ID')}
-                </TableCell>
+                <TableCell>{new Date(u.created_at).toLocaleDateString('id-ID')}</TableCell>
                 <TableCell className="text-right">
                   <select
                     className="border rounded px-2 py-1 text-sm bg-background"
