@@ -18,6 +18,8 @@ import PatientDetail from './pages/Patients/PatientDetail'
 import PortalLogin from './pages/Portal/PortalLogin'
 import PortalDashboard from './pages/Portal/PortalDashboard'
 import Landing from './pages/Landing/Landing'
+import LabResults from './pages/Lab/LabResults'
+import LabDetail from './pages/Lab/LabDetail'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -73,6 +75,8 @@ function App() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/patients" replace />} />
+            <Route path="/lab" element={<LabResults />} />
+            <Route path="/lab/:id" element={<LabDetail />} />
           </Routes>
         </AppLayout>
       } />

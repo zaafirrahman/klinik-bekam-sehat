@@ -30,6 +30,7 @@ const navItems = [
   { label: 'Beranda',            path: '/',                icon: '🏠' },
   { label: 'Pasien',             path: '/patients',        icon: '👤' },
   { label: 'Kunjungan',          path: '/visits',          icon: '🏥' },
+  { label: 'Lab',                path: '/lab',             icon: '🩸' },
   { label: 'Konsultasi',         path: '/consultations',   icon: '📋' },
   { label: 'Keuangan Harian',    path: '/finance',         icon: '💰' },
   { label: 'Keuangan Bulanan',   path: '/finance/monthly', icon: '📅' },
