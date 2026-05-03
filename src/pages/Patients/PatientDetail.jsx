@@ -78,7 +78,7 @@ export default function PatientDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="space-y-2">
         <Button variant="outline" size="sm" onClick={() => navigate('/patients')}>
           ← Kembali
         </Button>
@@ -195,51 +195,52 @@ function VisitCard({ visit, navigate }) {
       className="border rounded-lg p-4 cursor-pointer hover:bg-muted/30 transition-colors"
       onClick={() => navigate(`/visits/${visit.id}`)}
     >
-      <div className="flex items-start justify-between gap-2">
+      {/* Baris atas: icon+label di kiri, status di kanan */}
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-lg">🏥</span>
           <div>
-            <div className="flex items-center gap-2">
-              <p className="font-medium text-sm">Kunjungan</p>
-              <Badge
-                variant={allDone ? 'default' : hasServices ? 'secondary' : 'outline'}
-                className="text-xs"
-              >
-                {allDone ? 'Selesai' : hasServices ? 'Pending' : 'Belum ada layanan'}
-              </Badge>
-            </div>
+            <p className="font-medium text-sm">Kunjungan</p>
             <p className="text-xs text-muted-foreground">{visit.visit_date}</p>
           </div>
         </div>
-        {total > 0 && (
-          <span className="text-sm font-medium text-green-600">
-            Rp {total.toLocaleString('id-ID')}
-          </span>
-        )}
+        <Badge
+          variant={allDone ? 'default' : hasServices ? 'secondary' : 'outline'}
+          className="text-xs shrink-0"
+        >
+          {allDone ? 'Selesai' : hasServices ? 'Pending' : 'Belum ada layanan'}
+        </Badge>
       </div>
 
+      {/* Keluhan & TD */}
       {visit.chief_complaint && (
-        <p className="text-sm text-muted-foreground mt-2 ml-7">
+        <p className="text-sm text-muted-foreground mt-2 line-clamp-1">
           Keluhan: {visit.chief_complaint}
         </p>
       )}
-
       {visit.blood_pressure && (
-        <p className="text-xs text-muted-foreground ml-7">
+        <p className="text-xs text-muted-foreground">
           TD: {visit.blood_pressure}
         </p>
       )}
 
+      {/* Chips layanan */}
       {visit.visit_services?.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2 ml-7">
+        <div className="flex flex-wrap gap-1 mt-2">
           {visit.visit_services.map(s => (
-            <span
-              key={s.id}
-              className="text-xs bg-muted px-2 py-0.5 rounded-full"
-            >
+            <span key={s.id} className="text-xs bg-muted px-2 py-0.5 rounded-full">
               {s.services?.name || '?'} · {s.quantity}x
             </span>
           ))}
+        </div>
+      )}
+
+      {/* Total di pojok kanan bawah */}
+      {total > 0 && (
+        <div className="flex justify-end mt-2">
+          <span className="text-sm font-medium text-green-600">
+            Rp {total.toLocaleString('id-ID')}
+          </span>
         </div>
       )}
     </div>
@@ -271,13 +272,13 @@ function ConsultCard({ consult, navigate }) {
       </div>
 
       {consult.complaint && (
-        <p className="text-sm text-muted-foreground mt-2 ml-7">
+        <p className="text-sm text-muted-foreground mt-2">
           Keluhan: {consult.complaint}
         </p>
       )}
 
       {consult.plan && (
-        <p className="text-sm text-muted-foreground ml-7">
+        <p className="text-sm text-muted-foreground">
           Rencana: {consult.plan}
         </p>
       )}

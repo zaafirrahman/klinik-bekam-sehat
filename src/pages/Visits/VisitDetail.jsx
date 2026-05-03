@@ -398,35 +398,41 @@ export default function VisitDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => navigate('/visits')}>
-            ← Kembali
-          </Button>
+      <div className="space-y-3">
+        <Button variant="outline" size="sm" onClick={() => navigate('/visits')}>
+          ← Kembali
+        </Button>
+        <div className="flex items-start justify-between gap-2">
           <div>
             <h1 className="text-2xl font-semibold">Detail Kunjungan</h1>
             <p className="text-sm text-muted-foreground">{visit.visit_date}</p>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {doneItems.length > 0 && visit.patients?.phone && (
-            <Button variant="outline" onClick={handleSendWhatsApp}>
-              📱 Kirim Kwitansi WA
-            </Button>
-          )}
-          {doneItems.length > 0 && (
-            <Button variant="outline" onClick={() => generateKwitansi(doneItems)}>
-              📄 Download Kwitansi
-            </Button>
-          )}
-          <Button variant="outline" onClick={() => setEditOpen(true)}>Edit</Button>
-          <Button 
-            variant="destructive" 
-            onClick={() => setDeleteOpen(true)}
-            disabled={hasDoneItems}
-            title={hasDoneItems ? 'Tidak bisa dihapus, ada layanan yang sudah checkout' : ''}>
-            Hapus
-          </Button>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="flex gap-2">
+              {doneItems.length > 0 && visit.patients?.phone && (
+                <Button variant="outline" size="sm" onClick={handleSendWhatsApp}>
+                  📱 WA
+                </Button>
+              )}
+              {doneItems.length > 0 && (
+                <Button variant="outline" size="sm" onClick={() => generateKwitansi(doneItems)}>
+                  📄 Kwitansi
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>Edit</Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeleteOpen(true)}
+                disabled={hasDoneItems}
+                title={hasDoneItems ? 'Tidak bisa dihapus, ada layanan yang sudah checkout' : ''}
+              >
+                Hapus
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -585,47 +591,91 @@ export default function VisitDetail() {
               Belum ada layanan ditambahkan
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Layanan</TableHead>
-                  <TableHead>Qty</TableHead>
-                  <TableHead>Harga</TableHead>
-                  <TableHead>Subtotal</TableHead>
-                  <TableHead>Catatan</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {visit.visit_services.map(s => (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-medium">{s.services?.name}</TableCell>
-                    <TableCell>{s.quantity}</TableCell>
-                    <TableCell>Rp {s.final_price.toLocaleString('id-ID')}</TableCell>
-                    <TableCell>Rp {(s.final_price * s.quantity).toLocaleString('id-ID')}</TableCell>
-                    <TableCell className="text-muted-foreground">{s.note || '-'}</TableCell>
-                    <TableCell>
-                      <Badge variant={s.status === 'done' ? 'default' : 'secondary'}>
-                        {s.status === 'done' ? 'Selesai' : 'Pending'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {s.status === 'pending' && (
+            <>
+              {/* Mobile: Card list */}
+              <div className="md:hidden space-y-2">
+                {visit.visit_services?.map(s => (
+                  <div key={s.id} className="border rounded-lg p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm">{s.services?.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {s.quantity}x · Rp {s.final_price.toLocaleString('id-ID')}
+                        </p>
+                        {s.note && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">{s.note}</p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <Badge variant={s.status === 'done' ? 'default' : 'secondary'} className="text-xs">
+                          {s.status === 'done' ? 'Selesai' : 'Pending'}
+                        </Badge>
+                        <p className="text-sm font-medium">
+                          Rp {(s.final_price * s.quantity).toLocaleString('id-ID')}
+                        </p>
+                      </div>
+                    </div>
+                    {s.status === 'pending' && (
+                      <div className="mt-2 flex justify-end">
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-destructive"
+                          className="text-destructive h-7 text-xs"
                           onClick={() => { setDeleteServiceTarget(s); setDeleteServiceOpen(true) }}
                         >
                           Hapus
                         </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop: Table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Layanan</TableHead>
+                      <TableHead>Qty</TableHead>
+                      <TableHead>Harga</TableHead>
+                      <TableHead>Subtotal</TableHead>
+                      <TableHead>Catatan</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {visit.visit_services.map(s => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-medium">{s.services?.name}</TableCell>
+                        <TableCell>{s.quantity}</TableCell>
+                        <TableCell>Rp {s.final_price.toLocaleString('id-ID')}</TableCell>
+                        <TableCell>Rp {(s.final_price * s.quantity).toLocaleString('id-ID')}</TableCell>
+                        <TableCell className="text-muted-foreground">{s.note || '-'}</TableCell>
+                        <TableCell>
+                          <Badge variant={s.status === 'done' ? 'default' : 'secondary'}>
+                            {s.status === 'done' ? 'Selesai' : 'Pending'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {s.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive"
+                              onClick={() => { setDeleteServiceTarget(s); setDeleteServiceOpen(true) }}
+                            >
+                              Hapus
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
 
           {/* Summary */}

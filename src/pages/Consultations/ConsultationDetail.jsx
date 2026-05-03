@@ -248,31 +248,34 @@ export default function ConsultationDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => navigate('/consultations')}>
-            ← Kembali
-          </Button>
+      <div className="space-y-3">
+        <Button variant="outline" size="sm" onClick={() => navigate('/consultations')}>
+          ← Kembali
+        </Button>
+        <div className="flex items-start justify-between gap-2">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl font-semibold">Detail Konsultasi</h1>
-              <Badge variant="outline" className="font-mono text-base">
+              <Badge variant="outline" className="font-mono">
                 {consult.reg_number}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">{consult.consult_date}</p>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={generatePDF}
-            disabled={generatingPdf}
-          >
-            {generatingPdf ? 'Generating...' : consult.letter_url ? '↻ Generate Ulang PDF' : '📄 Generate Surat PDF'}
-          </Button>
-          <Button variant="outline" onClick={() => setEditOpen(true)}>Edit</Button>
-          <Button variant="destructive" onClick={() => setDeleteOpen(true)}>Hapus</Button>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generatePDF}
+              disabled={generatingPdf}
+            >
+              {generatingPdf ? 'Generating...' : consult.letter_url ? '↻ PDF' : '📄 Generate PDF'}
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>Edit</Button>
+              <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>Hapus</Button>
+            </div>
+          </div>
         </div>
       </div>
 
