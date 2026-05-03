@@ -453,7 +453,7 @@ export default function VisitDetail() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Usia</span>
-              <span>{visit.patients?.birth_year ? `${currentYear - visit.patients.birth_year} tahun` : '-'}</span>
+              <span>{visit.patients?.birth_year ? `~ ${currentYear - visit.patients.birth_year} tahun` : '-'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Telepon</span>

@@ -107,7 +107,7 @@ export default function PortalDashboard() {
                   </Badge>
                   {patient?.birth_year && (
                     <span className="text-sm text-muted-foreground">
-                      {currentYear - patient.birth_year} tahun
+                      ~ {currentYear - patient.birth_year} tahun (tahun ini)
                     </span>
                   )}
                 </div>

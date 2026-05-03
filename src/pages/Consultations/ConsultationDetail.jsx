@@ -139,7 +139,7 @@ export default function ConsultationDetail() {
       const patientData = [
         ['Nama', consult.patients?.name || '-'],
         ['Kode Pasien', consult.patients?.patient_code || '-'],
-        ['Usia', consult.patients?.birth_year ? `${currentYear - consult.patients.birth_year} tahun` : '-'],
+        ['Usia', consult.patients?.birth_year ? `~ ${currentYear - consult.patients.birth_year} tahun` : '-'],
         ['Alamat', consult.patients?.address || '-'],
         ['No. Telepon', consult.patients?.phone || '-'],
         ['Tanggal Konsultasi', consult.consult_date],
@@ -289,7 +289,7 @@ export default function ConsultationDetail() {
             {[
               ['Nama', consult.patients?.name],
               ['Kode', consult.patients?.patient_code],
-              ['Usia', consult.patients?.birth_year ? `${currentYear - consult.patients.birth_year} tahun` : '-'],
+              ['Usia', consult.patients?.birth_year ? `~ ${currentYear - consult.patients.birth_year} tahun` : '-'],
               ['Telepon', consult.patients?.phone || '-'],
               ['Alamat', consult.patients?.address || '-'],
             ].map(([label, value]) => (

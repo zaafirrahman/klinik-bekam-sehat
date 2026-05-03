@@ -234,7 +234,7 @@ export default function Patients() {
                   <p className="font-medium text-sm truncate">{p.name}</p>
                 </div>
                 <p className="text-xs text-muted-foreground shrink-0">
-                  {p.birth_year ? `${currentYear - p.birth_year} th` : '-'}
+                  {p.birth_year ? `~ ${currentYear - p.birth_year} th` : '-'}
                 </p>
               </div>
               <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
