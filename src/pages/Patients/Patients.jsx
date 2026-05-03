@@ -239,7 +239,7 @@ export default function Patients() {
               </div>
               <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{p.phone || 'No telp -'}</span>
-                {p.address && <span className="truncate">· {p.address}</span>}
+                {p.address && <span className="line-clamp-1 break-all">· {p.address}</span>}
               </div>
               <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
                 <Button size="sm" variant="outline" className="h-7 text-xs flex-1"

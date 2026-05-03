@@ -137,7 +137,7 @@ export default function Consultations() {
           <DialogTrigger asChild>
             <Button>+ Konsultasi Baru</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg overflow-y-auto max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>Input Konsultasi Baru</DialogTitle>
             </DialogHeader>
@@ -299,7 +299,7 @@ export default function Consultations() {
                 </Badge>
               </div>
               {c.complaint && (
-                <p className="text-xs text-muted-foreground mt-1.5 truncate">
+                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 break-all">
                   {c.complaint}
                 </p>
               )}

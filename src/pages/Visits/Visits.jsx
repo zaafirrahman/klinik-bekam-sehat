@@ -259,7 +259,7 @@ export default function Visits() {
                   </Badge>
                 </div>
                 {v.chief_complaint && (
-                  <p className="text-xs text-muted-foreground mt-1.5 truncate">
+                  <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 break-all">
                     {v.chief_complaint}
                   </p>
                 )}
