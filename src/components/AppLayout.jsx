@@ -27,6 +27,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 
 const navItems = [
+  { label: 'Beranda',            path: '/',                icon: '🏠' },
   { label: 'Pasien',             path: '/patients',        icon: '👤' },
   { label: 'Kunjungan',          path: '/visits',          icon: '🏥' },
   { label: 'Konsultasi',         path: '/consultations',   icon: '📋' },

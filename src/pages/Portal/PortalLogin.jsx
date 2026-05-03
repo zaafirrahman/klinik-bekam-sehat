@@ -59,7 +59,7 @@ export default function PortalLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Portal Pasien</h1>
@@ -67,7 +67,6 @@ export default function PortalLogin() {
             Cek riwayat kunjungan Anda
           </p>
         </div>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Masuk</CardTitle>
@@ -104,10 +103,17 @@ export default function PortalLogin() {
             </form>
           </CardContent>
         </Card>
-
         <p className="text-center text-xs text-muted-foreground">
           Kode pasien tertera pada kartu kunjungan Anda
         </p>
+        <div className="text-center">
+          <button
+            onClick={() => navigate('/')}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Kembali ke Beranda
+          </button>
+        </div>
       </div>
     </div>
   )

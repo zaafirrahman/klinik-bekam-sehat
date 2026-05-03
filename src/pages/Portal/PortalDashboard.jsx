@@ -193,6 +193,15 @@ export default function PortalDashboard() {
           )}
         </div>
 
+        <div className="text-center pt-2">
+          <button
+            onClick={() => navigate('/')}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Kembali ke Beranda
+          </button>
+        </div>
+
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground pb-4">
           {clinicInfo?.address && `${clinicInfo.address}`}

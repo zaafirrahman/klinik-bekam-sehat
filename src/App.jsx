@@ -53,27 +53,26 @@ function App() {
   // Sudah login
   return (
     <Routes>
-      {/* Portal routes - tanpa AppLayout */}
+      {/* Public routes - tanpa AppLayout */}
+      <Route path="/" element={<Landing />} />
       <Route path="/portal" element={<PortalLogin />} />
       <Route path="/portal/dashboard" element={<PortalDashboard />} />
-      
+
       {/* Admin routes - dengan AppLayout */}
       <Route path="/*" element={
         <AppLayout>
           <Routes>
-            <Route path="/" element={<Landing />} />
             <Route path="/patients" element={<Patients />} />
+            <Route path="/patients/:id" element={<PatientDetail />} />
             <Route path="/visits" element={<Visits />} />
             <Route path="/visits/:id" element={<VisitDetail />} />
             <Route path="/finance" element={<Finance />} />
+            <Route path="/finance/monthly" element={<FinanceMonthly />} />
             <Route path="/consultations" element={<Consultations />} />
+            <Route path="/consultations/:id" element={<ConsultationDetail />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/patients" replace />} />
-            <Route path="/consultations" element={<Consultations />} />
-            <Route path="/consultations/:id" element={<ConsultationDetail />} />
-            <Route path="/finance/monthly" element={<FinanceMonthly />} />
-            <Route path="/patients/:id" element={<PatientDetail />} />
           </Routes>
         </AppLayout>
       } />

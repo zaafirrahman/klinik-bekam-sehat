@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import HijriConverter from 'hijri-converter'
+import { toHijri } from 'hijri-converter'
 
 const services = [
   { icon: '🩸', name: 'Bekam', desc: 'Hijamah / Cupping Therapy untuk melancarkan peredaran darah dan membuang racun tubuh.' },
@@ -16,11 +17,11 @@ const services = [
 
 function getSunnahBekamInfo() {
   const today = new Date()
-  const hijri = HijriConverter.toHijri(
+  const hijri = toHijri(
     today.getFullYear(),
     today.getMonth() + 1,
     today.getDate()
-    )
+  )
 
   const sunnahDays = [17, 19, 21]
   const isSunnah = sunnahDays.includes(hijri.hd)
@@ -33,21 +34,52 @@ function getSunnahBekamInfo() {
 
   const hijriDateStr = `${hijri.hd} ${monthNames[hijri.hm - 1]} ${hijri.hy} H`
 
-  // Cari tanggal sunnah berikutnya
-  let nextSunnah = null
+  // Cari tanggal sunnah berikutnya + konversi ke Masehi
+  let nextSunnahHijri = null
+  let nextSunnahMasehi = null
+
   for (const day of sunnahDays) {
     if (day > hijri.hd) {
-      nextSunnah = day
+      nextSunnahHijri = `${day} ${monthNames[hijri.hm - 1]} ${hijri.hy} H`
+      // Konversi ke Masehi
+      // pakai pendekatan manual — estimasi hari ke depan
+      const daysAhead = day - hijri.hd
+      const nextDate = new Date(today)
+      nextDate.setDate(today.getDate() + daysAhead)
+      nextSunnahMasehi = nextDate.toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      })
       break
     }
   }
 
-  return { isSunnah, hijriDateStr, hijriDay: hijri.hd, nextSunnah, monthName: monthNames[hijri.hm - 1] }
+  // Kalau tidak ada di bulan ini, ambil tanggal 17 bulan depan
+  if (!nextSunnahHijri) {
+    const nextMonth = hijri.hm === 12 ? 1 : hijri.hm + 1
+    const nextYear = hijri.hm === 12 ? hijri.hy + 1 : hijri.hy
+    nextSunnahHijri = `17 ${monthNames[nextMonth - 1]} ${nextYear} H`
+    const daysToEnd = 30 - hijri.hd + 17
+    const nextDate = new Date(today)
+    nextDate.setDate(today.getDate() + daysToEnd)
+    nextSunnahMasehi = nextDate.toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    })
+  }
+
+  const todayMasehi = today.toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  })
+
+  return {
+    isSunnah, hijriDateStr, hijriDay: hijri.hd,
+    monthName: monthNames[hijri.hm - 1],
+    nextSunnahHijri, nextSunnahMasehi, todayMasehi
+  }
 }
 
 export default function Landing() {
   const navigate = useNavigate()
-  const { isSunnah, hijriDateStr, hijriDay, nextSunnah, monthName } = getSunnahBekamInfo()
+  const { isSunnah, hijriDateStr, hijriDay, monthName, nextSunnahHijri, nextSunnahMasehi, todayMasehi } = getSunnahBekamInfo()
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,25 +126,26 @@ export default function Landing() {
 
       {/* Tanggal Sunnah Bekam */}
       <section className="px-6 pb-12 max-w-2xl mx-auto">
-        <Card className={isSunnah ? 'border-green-300 bg-green-50 dark:bg-green-950/20' : 'border-muted'}>
+        <Card className={isSunnah ? 'border-green-300 bg-green-50 dark:bg-green-950/20' : ''}>
           <CardContent className="pt-5 pb-5">
             <div className="flex items-start gap-4">
               <div className="text-3xl">{isSunnah ? '✅' : '📅'}</div>
               <div className="flex-1">
                 <p className="font-semibold text-sm mb-0.5">
-                  {isSunnah ? 'Hari ini adalah tanggal sunnah bekam!' : 'Hari ini bukan tanggal sunnah bekam'}
+                  {isSunnah
+                    ? 'Hari ini adalah hari sunnah bekam!'
+                    : 'Jadwal Sunnah Bekam'}
                 </p>
-                <p className="text-xs text-muted-foreground mb-2">{hijriDateStr}</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {todayMasehi} · {hijriDateStr}
+                </p>
                 {isSunnah ? (
                   <p className="text-xs text-green-700 dark:text-green-400">
-                    Tanggal {hijriDay} {monthName} adalah salah satu hari yang dianjurkan Rasulullah ﷺ untuk berbekam (17, 19, 21 setiap bulan Hijriah).
+                    Tanggal {hijriDay} {monthName} termasuk hari yang dianjurkan Rasulullah ﷺ untuk berbekam. Bekam dapat dilakukan kapan saja, namun di tanggal 17, 19, dan 21 Hijriah memiliki keutamaan tersendiri.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    {nextSunnah
-                      ? `Tanggal sunnah bekam berikutnya: ${nextSunnah} ${monthName} H`
-                      : `Tanggal sunnah bekam berikutnya: 17 bulan Hijriah berikutnya`
-                    }
+                    Hari sunnah bekam berikutnya: <span className="font-medium text-foreground">{nextSunnahMasehi}</span> ({nextSunnahHijri})
                   </p>
                 )}
               </div>
