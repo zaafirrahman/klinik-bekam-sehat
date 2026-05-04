@@ -38,7 +38,9 @@ const trustStats = [
 
 function getSunnahInfo() {
   const today = new Date()
-  const hijri = toHijri(today.getFullYear(), today.getMonth() + 1, today.getDate())
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const hijri = toHijri(yesterday.getFullYear(), yesterday.getMonth() + 1, yesterday.getDate())
   const sunnahDays = [17, 19, 21]
   const isSunnah = sunnahDays.includes(hijri.hd)
   const mn = ['Muharram','Safar',"Rabi'ul Awal","Rabi'ul Akhir",'Jumadil Awal','Jumadil Akhir','Rajab',"Sya'ban",'Ramadhan','Syawal',"Dzulqa'dah",'Dzulhijjah']
@@ -600,10 +602,10 @@ export default function Landing() {
               <div className={`l-sunnah-icon ${isSunnah ? 'act' : 'inact'}`}>{isSunnah ? '🟢' : '📅'}</div>
               <div style={{ flex:1 }}>
                 <div className="l-sunnah-lbl">{isSunnah ? 'Hari ini adalah hari sunnah bekam!' : 'Hari Sunnah Bekam Berikutnya'}</div>
-                <div className="l-sunnah-dt">{todayMasehi} · {hijriStr}</div>
+                <div className="l-sunnah-dt">Hari ini : {todayMasehi} · {hijriStr}</div>
                 {isSunnah
                   ? <p className="l-sunnah-txt">Tanggal {hijriDay} {monthName} adalah hari yang dianjurkan Rasulullah ﷺ untuk berbekam (17, 19, dan 21 Hijriah). Manfaatkan hari penuh berkah ini untuk hijamah.</p>
-                  : <p className="l-sunnah-nxt">Hari sunnah berikutnya: <strong>{nextMasehi}</strong> &nbsp;·&nbsp; {nextHijri}</p>
+                  : <p className="l-sunnah-nxt">Hari sunnah bekam: <strong>{nextMasehi}</strong> &nbsp;·&nbsp; {nextHijri}</p>
                 }
               </div>
             </div>
