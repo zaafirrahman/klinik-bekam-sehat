@@ -6,6 +6,48 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+function LabCard({ lab, navigate }) {
+  const params = []
+  if (lab.blood_sugar) params.push(
+    `Gula (${lab.blood_sugar_type === 'puasa' ? 'Puasa' : 'Sewaktu'}): ${lab.blood_sugar}`
+  )
+  if (lab.uric_acid) params.push(
+    `Asam Urat (${lab.uric_acid_gender === 'pria' ? 'Pria' : 'Wanita'}): ${lab.uric_acid}`
+  )
+  if (lab.cholesterol) params.push(`Kolesterol: ${lab.cholesterol}`)
+
+  return (
+    <div
+      className="border rounded-lg p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+      onClick={() => navigate(`/lab/${lab.id}`)}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🔬</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-sm">Cek Lab</p>
+              {lab.letter_url && (
+                <Badge variant="secondary" className="text-xs">PDF ✓</Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">{lab.lab_date}</p>
+          </div>
+        </div>
+      </div>
+      {params.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {params.map(p => (
+            <span key={p} className="text-xs bg-muted px-2 py-0.5 rounded-full">
+              {p} mg/dL
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function PatientDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -13,24 +55,18 @@ export default function PatientDetail() {
   const [visits, setVisits] = useState([])
   const [consultations, setConsultations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [labs, setLabs] = useState([])
 
   const currentYear = new Date().getFullYear()
 
   const fetchAll = async () => {
     setLoading(true)
 
-    const [patientRes, visitsRes, consultRes] = await Promise.all([
-      supabase
-        .from('patients')
-        .select('*')
-        .eq('id', id)
-        .single(),
+    const [patientRes, visitsRes, consultRes, labRes] = await Promise.all([
+      supabase.from('patients').select('*').eq('id', id).single(),
       supabase
         .from('visits')
-        .select(`
-          *,
-          visit_services(id, status, final_price, quantity, services(name, service_code))
-        `)
+        .select(`*, visit_services(id, status, final_price, quantity, services(name, service_code))`)
         .eq('patient_id', id)
         .order('visit_date', { ascending: false })
         .order('created_at', { ascending: false }),
@@ -39,6 +75,12 @@ export default function PatientDetail() {
         .select('*')
         .eq('patient_id', id)
         .order('consult_date', { ascending: false })
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('lab_results')
+        .select('*')
+        .eq('patient_id', id)
+        .order('lab_date', { ascending: false })
         .order('created_at', { ascending: false }),
     ])
 
@@ -51,6 +93,7 @@ export default function PatientDetail() {
     setPatient(patientRes.data)
     setVisits(visitsRes.data || [])
     setConsultations(consultRes.data || [])
+    setLabs(labRes.data || [])
     setLoading(false)
   }
 
@@ -63,9 +106,10 @@ export default function PatientDetail() {
   const timeline = [
     ...visits.map(v => ({ ...v, _type: 'visit' })),
     ...consultations.map(c => ({ ...c, _type: 'consultation' })),
+    ...labs.map(l => ({ ...l, _type: 'lab' })),
   ].sort((a, b) => {
-    const dateA = a._type === 'visit' ? a.visit_date : a.consult_date
-    const dateB = b._type === 'visit' ? b.visit_date : b.consult_date
+    const dateA = a._type === 'visit' ? a.visit_date : a._type === 'consultation' ? a.consult_date : a.lab_date
+    const dateB = b._type === 'visit' ? b.visit_date : b._type === 'consultation' ? b.consult_date : b.lab_date
     return new Date(dateB) - new Date(dateA)
   })
 
@@ -143,6 +187,16 @@ export default function PatientDetail() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">
+                Total Cek Lab
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{labs.length}x</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">
                 Total Pengeluaran
               </CardTitle>
             </CardHeader>
@@ -160,7 +214,7 @@ export default function PatientDetail() {
         <CardHeader>
           <CardTitle className="text-base">Riwayat Terpadu</CardTitle>
           <p className="text-sm text-muted-foreground">
-            {visits.length} kunjungan · {consultations.length} konsultasi
+            {visits.length} kunjungan · {consultations.length} konsultasi · {labs.length} cek lab
           </p>
         </CardHeader>
         <CardContent>
@@ -173,7 +227,9 @@ export default function PatientDetail() {
               {timeline.map(item => (
                 item._type === 'visit'
                   ? <VisitCard key={`v-${item.id}`} visit={item} navigate={navigate} />
-                  : <ConsultCard key={`c-${item.id}`} consult={item} navigate={navigate} />
+                  : item._type === 'consultation'
+                  ? <ConsultCard key={`c-${item.id}`} consult={item} navigate={navigate} />
+                  : <LabCard key={`l-${item.id}`} lab={item} navigate={navigate} />
               ))}
             </div>
           )}

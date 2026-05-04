@@ -43,7 +43,9 @@ export default function LabResults() {
   const [form, setForm] = useState({
     lab_date: new Date().toISOString().split('T')[0],
     blood_sugar: '',
+    blood_sugar_type: '',
     uric_acid: '',
+    uric_acid_gender: '',
     cholesterol: '',
     notes: '',
   })
@@ -98,6 +100,14 @@ export default function LabResults() {
       toast.error('Isi minimal satu parameter lab')
       return
     }
+    if (form.blood_sugar && !form.blood_sugar_type) {
+      toast.error('Pilih kondisi gula darah (puasa/sewaktu)')
+      return
+    }
+    if (form.uric_acid && !form.uric_acid_gender) {
+      toast.error('Pilih kondisi asam urat (pria/wanita)')
+      return
+    }
 
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -106,7 +116,9 @@ export default function LabResults() {
       visit_id: selectedVisit?.id || null,
       lab_date: form.lab_date,
       blood_sugar: form.blood_sugar ? parseFloat(form.blood_sugar) : null,
+      blood_sugar_type: form.blood_sugar_type || null,
       uric_acid: form.uric_acid ? parseFloat(form.uric_acid) : null,
+      uric_acid_gender: form.uric_acid_gender || null,
       cholesterol: form.cholesterol ? parseFloat(form.cholesterol) : null,
       notes: form.notes || null,
       created_by: user.id,
@@ -238,27 +250,73 @@ export default function LabResults() {
               <div className="space-y-2">
                 <Label>Parameter Pemeriksaan</Label>
                 <p className="text-xs text-muted-foreground">Isi parameter yang diperiksa, kosongkan yang tidak</p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Label className="w-28 text-sm shrink-0">Gula Darah</Label>
-                    <Input
-                      type="number"
-                      placeholder="mg/dL"
-                      value={form.blood_sugar}
-                      onChange={e => setForm({ ...form, blood_sugar: e.target.value })}
-                    />
+                <div className="space-y-4">
+
+                  {/* Gula Darah */}
+                  <div className="border rounded-lg p-3 space-y-2">
+                    <p className="text-sm font-medium">Gula Darah</p>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={form.blood_sugar_type === 'puasa' ? 'default' : 'outline'}
+                        onClick={() => setForm({ ...form, blood_sugar_type: form.blood_sugar_type === 'puasa' ? '' : 'puasa' })}
+                      >
+                        Puasa
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={form.blood_sugar_type === 'sewaktu' ? 'default' : 'outline'}
+                        onClick={() => setForm({ ...form, blood_sugar_type: form.blood_sugar_type === 'sewaktu' ? '' : 'sewaktu' })}
+                      >
+                        Sewaktu
+                      </Button>
+                    </div>
+                    {form.blood_sugar_type && (
+                      <Input
+                        type="number"
+                        placeholder={`Gula Darah ${form.blood_sugar_type === 'puasa' ? '(Puasa)' : '(Sewaktu)'} mg/dL`}
+                        value={form.blood_sugar}
+                        onChange={e => setForm({ ...form, blood_sugar: e.target.value })}
+                      />
+                    )}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Label className="w-28 text-sm shrink-0">Asam Urat</Label>
-                    <Input
-                      type="number"
-                      placeholder="mg/dL"
-                      value={form.uric_acid}
-                      onChange={e => setForm({ ...form, uric_acid: e.target.value })}
-                    />
+
+                  {/* Asam Urat */}
+                  <div className="border rounded-lg p-3 space-y-2">
+                    <p className="text-sm font-medium">Asam Urat</p>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={form.uric_acid_gender === 'pria' ? 'default' : 'outline'}
+                        onClick={() => setForm({ ...form, uric_acid_gender: form.uric_acid_gender === 'pria' ? '' : 'pria' })}
+                      >
+                        Pria
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={form.uric_acid_gender === 'wanita' ? 'default' : 'outline'}
+                        onClick={() => setForm({ ...form, uric_acid_gender: form.uric_acid_gender === 'wanita' ? '' : 'wanita' })}
+                      >
+                        Wanita
+                      </Button>
+                    </div>
+                    {form.uric_acid_gender && (
+                      <Input
+                        type="number"
+                        placeholder={`Asam Urat ${form.uric_acid_gender === 'pria' ? '(Pria)' : '(Wanita)'} mg/dL`}
+                        value={form.uric_acid}
+                        onChange={e => setForm({ ...form, uric_acid: e.target.value })}
+                      />
+                    )}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Label className="w-28 text-sm shrink-0">Kolesterol</Label>
+
+                  {/* Kolesterol */}
+                  <div className="border rounded-lg p-3 space-y-2">
+                    <p className="text-sm font-medium">Kolesterol</p>
                     <Input
                       type="number"
                       placeholder="mg/dL"
@@ -266,6 +324,7 @@ export default function LabResults() {
                       onChange={e => setForm({ ...form, cholesterol: e.target.value })}
                     />
                   </div>
+
                 </div>
               </div>
 

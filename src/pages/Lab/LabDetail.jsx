@@ -19,11 +19,21 @@ import {
 import { jsPDF } from 'jspdf'
 
 // Nilai normal referensi
-const NORMAL_RANGES = {
-  blood_sugar: { min: 70, max: 100, unit: 'mg/dL', label: 'Gula Darah (Puasa)' },
-  uric_acid_male: { min: 3.4, max: 7.0, unit: 'mg/dL', label: 'Asam Urat (Pria)' },
-  uric_acid_female: { min: 2.4, max: 6.0, unit: 'mg/dL', label: 'Asam Urat (Wanita)' },
-  cholesterol: { min: 0, max: 200, unit: 'mg/dL', label: 'Kolesterol Total' },
+
+function getBloodSugarRange(type) {
+  if (type === 'puasa') return { min: 70, max: 100 }
+  return { min: 70, max: 140 } // sewaktu
+}
+
+function getUricAcidRange(gender) {
+  if (gender === 'pria') return { min: 3.4, max: 7.0 }
+  return { min: 2.4, max: 6.0 } // wanita
+}
+
+function getLabLabel(key, lab) {
+  if (key === 'blood_sugar') return `Gula Darah (${lab.blood_sugar_type === 'puasa' ? 'Puasa' : 'Sewaktu'})`
+  if (key === 'uric_acid') return `Asam Urat (${lab.uric_acid_gender === 'pria' ? 'Pria' : 'Wanita'})`
+  return 'Kolesterol'
 }
 
 function getStatus(value, min, max) {
@@ -75,7 +85,9 @@ export default function LabDetail() {
     setEditForm({
       lab_date: labRes.data.lab_date,
       blood_sugar: labRes.data.blood_sugar || '',
+      blood_sugar_type: labRes.data.blood_sugar_type || '',
       uric_acid: labRes.data.uric_acid || '',
+      uric_acid_gender: labRes.data.uric_acid_gender || '',
       cholesterol: labRes.data.cholesterol || '',
       notes: labRes.data.notes || '',
     })
@@ -93,6 +105,8 @@ export default function LabDetail() {
         blood_sugar: editForm.blood_sugar ? parseFloat(editForm.blood_sugar) : null,
         uric_acid: editForm.uric_acid ? parseFloat(editForm.uric_acid) : null,
         cholesterol: editForm.cholesterol ? parseFloat(editForm.cholesterol) : null,
+        blood_sugar_type: editForm.blood_sugar_type || null,
+        uric_acid_gender: editForm.uric_acid_gender || null,
         notes: editForm.notes || null,
       })
       .eq('id', id)
@@ -186,11 +200,14 @@ export default function LabDetail() {
       doc.setFont('helvetica', 'normal')
 
       if (lab.blood_sugar) {
-        const status = getStatus(lab.blood_sugar, 70, 100)
-        doc.text('Gula Darah', margin, y)
+        const range = getBloodSugarRange(lab.blood_sugar_type)
+        const status = getStatus(lab.blood_sugar, range.min, range.max)
+        const label = `Gula Darah (${lab.blood_sugar_type === 'puasa' ? 'Puasa' : 'Sewaktu'})`
+        const normalStr = lab.blood_sugar_type === 'puasa' ? '70 - 100' : '70 - 140'
+        doc.text(label, margin, y)
         doc.text(`${lab.blood_sugar}`, margin + 70, y)
         doc.text('mg/dL', margin + 100, y)
-        doc.text('70 - 100', margin + 130, y)
+        doc.text(normalStr, margin + 130, y)
         doc.setFont('helvetica', 'bold')
         doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 165, y)
         doc.setFont('helvetica', 'normal')
@@ -198,11 +215,14 @@ export default function LabDetail() {
       }
 
       if (lab.uric_acid) {
-        const status = getStatus(lab.uric_acid, 2.4, 7.0)
-        doc.text('Asam Urat', margin, y)
+        const range = getUricAcidRange(lab.uric_acid_gender)
+        const status = getStatus(lab.uric_acid, range.min, range.max)
+        const label = `Asam Urat (${lab.uric_acid_gender === 'pria' ? 'Pria' : 'Wanita'})`
+        const normalStr = lab.uric_acid_gender === 'pria' ? '3.4 - 7.0' : '2.4 - 6.0'
+        doc.text(label, margin, y)
         doc.text(`${lab.uric_acid}`, margin + 70, y)
         doc.text('mg/dL', margin + 100, y)
-        doc.text('2.4 - 7.0', margin + 130, y)
+        doc.text(normalStr, margin + 130, y)
         doc.setFont('helvetica', 'bold')
         doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 165, y)
         doc.setFont('helvetica', 'normal')
@@ -279,8 +299,8 @@ export default function LabDetail() {
     if (!phone.startsWith('62')) phone = '62' + phone
 
     const results = []
-    if (lab.blood_sugar) results.push(`Gula Darah: ${lab.blood_sugar} mg/dL`)
-    if (lab.uric_acid) results.push(`Asam Urat: ${lab.uric_acid} mg/dL`)
+    if (lab.blood_sugar) results.push(`Gula Darah (${lab.blood_sugar_type === 'puasa' ? 'Puasa' : 'Sewaktu'}): ${lab.blood_sugar} mg/dL`)
+    if (lab.uric_acid) results.push(`Asam Urat (${lab.uric_acid_gender === 'pria' ? 'Pria' : 'Wanita'}): ${lab.uric_acid} mg/dL`)
     if (lab.cholesterol) results.push(`Kolesterol: ${lab.cholesterol} mg/dL`)
 
     const pesan =
@@ -395,24 +415,32 @@ Semoga lekas sehat!`
             {lab.blood_sugar && (
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
-                  <p className="font-medium text-sm">Gula Darah</p>
-                  <p className="text-xs text-muted-foreground">Normal: 70 - 100 mg/dL</p>
+                  <p className="font-medium text-sm">
+                    Gula Darah ({lab.blood_sugar_type === 'puasa' ? 'Puasa' : 'Sewaktu'})
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Normal: {lab.blood_sugar_type === 'puasa' ? '70 - 100' : '70 - 140'} mg/dL
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <p className="text-xl font-bold">{lab.blood_sugar} <span className="text-sm font-normal text-muted-foreground">mg/dL</span></p>
-                  <StatusBadge status={bloodSugarStatus} />
+                  <StatusBadge status={getStatus(lab.blood_sugar, ...Object.values(getBloodSugarRange(lab.blood_sugar_type)))} />
                 </div>
               </div>
             )}
             {lab.uric_acid && (
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
-                  <p className="font-medium text-sm">Asam Urat</p>
-                  <p className="text-xs text-muted-foreground">Normal: 2.4 - 7.0 mg/dL</p>
+                  <p className="font-medium text-sm">
+                    Asam Urat ({lab.uric_acid_gender === 'pria' ? 'Pria' : 'Wanita'})
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Normal: {lab.uric_acid_gender === 'pria' ? '3.4 - 7.0' : '2.4 - 6.0'} mg/dL
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <p className="text-xl font-bold">{lab.uric_acid} <span className="text-sm font-normal text-muted-foreground">mg/dL</span></p>
-                  <StatusBadge status={uricAcidStatus} />
+                  <StatusBadge status={getStatus(lab.uric_acid, ...Object.values(getUricAcidRange(lab.uric_acid_gender)))} />
                 </div>
               </div>
             )}
@@ -452,19 +480,52 @@ Semoga lekas sehat!`
             </div>
             <div className="space-y-2">
               <Label>Parameter Pemeriksaan</Label>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Label className="w-28 text-sm shrink-0">Gula Darah</Label>
-                  <Input type="number" placeholder="mg/dL" value={editForm.blood_sugar}
-                    onChange={e => setEditForm({ ...editForm, blood_sugar: e.target.value })} />
+              <div className="space-y-4">
+                {/* Gula Darah */}
+                <div className="border rounded-lg p-3 space-y-2">
+                  <p className="text-sm font-medium">Gula Darah</p>
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm"
+                      variant={editForm.blood_sugar_type === 'puasa' ? 'default' : 'outline'}
+                      onClick={() => setEditForm({ ...editForm, blood_sugar_type: editForm.blood_sugar_type === 'puasa' ? '' : 'puasa' })}>
+                      Puasa
+                    </Button>
+                    <Button type="button" size="sm"
+                      variant={editForm.blood_sugar_type === 'sewaktu' ? 'default' : 'outline'}
+                      onClick={() => setEditForm({ ...editForm, blood_sugar_type: editForm.blood_sugar_type === 'sewaktu' ? '' : 'sewaktu' })}>
+                      Sewaktu
+                    </Button>
+                  </div>
+                  {editForm.blood_sugar_type && (
+                    <Input type="number" placeholder="mg/dL" value={editForm.blood_sugar}
+                      onChange={e => setEditForm({ ...editForm, blood_sugar: e.target.value })} />
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
-                  <Label className="w-28 text-sm shrink-0">Asam Urat</Label>
-                  <Input type="number" placeholder="mg/dL" value={editForm.uric_acid}
-                    onChange={e => setEditForm({ ...editForm, uric_acid: e.target.value })} />
+
+                {/* Asam Urat */}
+                <div className="border rounded-lg p-3 space-y-2">
+                  <p className="text-sm font-medium">Asam Urat</p>
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm"
+                      variant={editForm.uric_acid_gender === 'pria' ? 'default' : 'outline'}
+                      onClick={() => setEditForm({ ...editForm, uric_acid_gender: editForm.uric_acid_gender === 'pria' ? '' : 'pria' })}>
+                      Pria
+                    </Button>
+                    <Button type="button" size="sm"
+                      variant={editForm.uric_acid_gender === 'wanita' ? 'default' : 'outline'}
+                      onClick={() => setEditForm({ ...editForm, uric_acid_gender: editForm.uric_acid_gender === 'wanita' ? '' : 'wanita' })}>
+                      Wanita
+                    </Button>
+                  </div>
+                  {editForm.uric_acid_gender && (
+                    <Input type="number" placeholder="mg/dL" value={editForm.uric_acid}
+                      onChange={e => setEditForm({ ...editForm, uric_acid: e.target.value })} />
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
-                  <Label className="w-28 text-sm shrink-0">Kolesterol</Label>
+
+                {/* Kolesterol */}
+                <div className="border rounded-lg p-3 space-y-2">
+                  <p className="text-sm font-medium">Kolesterol</p>
                   <Input type="number" placeholder="mg/dL" value={editForm.cholesterol}
                     onChange={e => setEditForm({ ...editForm, cholesterol: e.target.value })} />
                 </div>
