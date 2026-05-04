@@ -189,10 +189,10 @@ export default function LabDetail() {
       // Header tabel
       doc.setFont('helvetica', 'bold')
       doc.text('Parameter', margin, y)
-      doc.text('Hasil', margin + 70, y)
-      doc.text('Satuan', margin + 100, y)
-      doc.text('Nilai Normal', margin + 130, y)
-      doc.text('Status', margin + 165, y)
+      doc.text('Hasil', margin + 55, y)
+      doc.text('Satuan', margin + 80, y)
+      doc.text('Nilai Normal', margin + 110, y)
+      doc.text('Status', margin + 150, y)
       y += 5
       doc.line(margin, y, pageWidth - margin, y)
       y += 6
@@ -205,11 +205,11 @@ export default function LabDetail() {
         const label = `Gula Darah (${lab.blood_sugar_type === 'puasa' ? 'Puasa' : 'Sewaktu'})`
         const normalStr = lab.blood_sugar_type === 'puasa' ? '70 - 100' : '70 - 140'
         doc.text(label, margin, y)
-        doc.text(`${lab.blood_sugar}`, margin + 70, y)
-        doc.text('mg/dL', margin + 100, y)
-        doc.text(normalStr, margin + 130, y)
+        doc.text(`${lab.blood_sugar}`, margin + 55, y)
+        doc.text('mg/dL', margin + 80, y)
+        doc.text(normalStr, margin + 110, y)
         doc.setFont('helvetica', 'bold')
-        doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 165, y)
+        doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 150, y)
         doc.setFont('helvetica', 'normal')
         y += 8
       }
@@ -220,11 +220,11 @@ export default function LabDetail() {
         const label = `Asam Urat (${lab.uric_acid_gender === 'pria' ? 'Pria' : 'Wanita'})`
         const normalStr = lab.uric_acid_gender === 'pria' ? '3.4 - 7.0' : '2.4 - 6.0'
         doc.text(label, margin, y)
-        doc.text(`${lab.uric_acid}`, margin + 70, y)
-        doc.text('mg/dL', margin + 100, y)
-        doc.text(normalStr, margin + 130, y)
+        doc.text(`${lab.uric_acid}`, margin + 55, y)
+        doc.text('mg/dL', margin + 80, y)
+        doc.text(normalStr, margin + 110, y)
         doc.setFont('helvetica', 'bold')
-        doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 165, y)
+        doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 150, y)
         doc.setFont('helvetica', 'normal')
         y += 8
       }
@@ -232,11 +232,11 @@ export default function LabDetail() {
       if (lab.cholesterol) {
         const status = getStatus(lab.cholesterol, 0, 200)
         doc.text('Kolesterol', margin, y)
-        doc.text(`${lab.cholesterol}`, margin + 70, y)
-        doc.text('mg/dL', margin + 100, y)
-        doc.text('< 200', margin + 130, y)
+        doc.text(`${lab.cholesterol}`, margin + 55, y)
+        doc.text('mg/dL', margin + 80, y)
+        doc.text('< 200', margin + 110, y)
         doc.setFont('helvetica', 'bold')
-        doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 165, y)
+        doc.text(status === 'normal' ? 'Normal' : status === 'high' ? 'Tinggi' : 'Rendah', margin + 150, y)
         doc.setFont('helvetica', 'normal')
         y += 8
       }
