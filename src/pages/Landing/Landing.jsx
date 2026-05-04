@@ -316,9 +316,9 @@ html { scroll-behavior: smooth; }
 .l-doc-bio { font-size: 0.85rem; color: #4a5e4b; line-height: 1.82; margin-bottom: 1.25rem; }
 .l-doc-creds { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-bottom: 1.5rem; }
 .l-cred { background: white; border: 1px solid #E8DCC8; border-radius: 8px; padding: 0.38rem 0.8rem; font-size: 0.73rem; color: #4a5e4b; font-weight: 700; }
-.l-doc-timeline { border-left: 2px solid #C5943A; padding-left: 1.25rem; }
+.l-doc-timeline { border-left: 2px solid #C5943A; padding-left: 1.18rem; }
 .l-tl-item { margin-bottom: 0.9rem; position: relative; }
-.l-tl-item::before { content: ''; position: absolute; left: -1.44rem; top: 0.35rem; width: 8px; height: 8px; border-radius: 50%; background: #C5943A; }
+.l-tl-item::before { content: ''; position: absolute; left: -1.48rem; top: 0.35rem; width: 8px; height: 8px; border-radius: 50%; background: #C5943A; }
 .l-tl-item:last-child { margin-bottom: 0; }
 .l-tl-role { font-size: 0.82rem; font-weight: 700; color: #2C3E2D; }
 .l-tl-place { font-size: 0.73rem; color: #7A9E7E; margin-top: 0.1rem; }

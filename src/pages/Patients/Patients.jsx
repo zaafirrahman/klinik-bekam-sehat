@@ -295,10 +295,12 @@ export default function Patients() {
                   <TableCell className="max-w-xs truncate">{p.address || '-'}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline" onClick={() => openEdit(p)}>
+                      <Button size="sm" variant="outline" 
+                        onClick={(e) => { e.stopPropagation(); openEdit(p) }}>
                         Edit
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => openDelete(p)}>
+                      <Button size="sm" variant="destructive" 
+                        onClick={(e) => { e.stopPropagation(); openDelete(p) }}>
                         Hapus
                       </Button>
                     </div>
