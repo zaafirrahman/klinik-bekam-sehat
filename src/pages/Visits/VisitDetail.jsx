@@ -221,12 +221,12 @@ export default function VisitDetail() {
       toast.success('Checkout berhasil! Pemasukan tercatat.')
       setCheckoutOpen(false)
       fetchVisit()
-      setTimeout(() => generateKwitansi(checkoutItems), 500)
+      setTimeout(() => generateNota(checkoutItems), 500)
     }
   }
 
-  const generateKwitansi = (items) => {
-    console.log('generateKwitansi called', items, clinicInfo)
+  const generateNota = (items) => {
+    console.log('generateNota called', items, clinicInfo)
     const doc = new jsPDF({ format: 'a5' })
     const pageWidth = doc.internal.pageSize.getWidth()
     const margin = 15
@@ -248,7 +248,7 @@ export default function VisitDetail() {
     // Judul
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
-    doc.text('KWITANSI PEMBAYARAN', pageWidth / 2, 36, { align: 'center' })
+    doc.text('NOTA PEMBAYARAN', pageWidth / 2, 36, { align: 'center' })
 
     doc.setLineWidth(0.3)
     doc.line(margin, 40, pageWidth - margin, 40)
@@ -332,7 +332,7 @@ export default function VisitDetail() {
     doc.setTextColor(0)
 
     // Download
-    const fileName = `kwitansi_${visit.patients?.patient_code}_${visit.visit_date}.pdf`
+    const fileName = `nota_${visit.patients?.patient_code}_${visit.visit_date}.pdf`
     doc.save(fileName)
   }
 
@@ -353,7 +353,7 @@ export default function VisitDetail() {
     if (phone.startsWith('0')) phone = '62' + phone.slice(1)
     if (!phone.startsWith('62')) phone = '62' + phone
 
-    // Format pesan kwitansi
+    // Format pesan nota
     const tanggal = new Date(visit.visit_date).toLocaleDateString('id-ID', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
@@ -369,7 +369,7 @@ export default function VisitDetail() {
 
 Halo kak, terima kasih sudah berkunjung hari ini!
 
-Kwitansi pembayaran terlampir.
+Nota pembayaran terlampir.
 Total: *Rp ${total.toLocaleString('id-ID')}*
 
 Cek riwayat kunjungan Anda di:
@@ -415,8 +415,8 @@ Semoga lekas sehat!`
                 </Button>
               )}
               {doneItems.length > 0 && (
-                <Button variant="outline" size="sm" onClick={() => generateKwitansi(doneItems)}>
-                  📄 Kwitansi
+                <Button variant="outline" size="sm" onClick={() => generateNota(doneItems)}>
+                  📄 Nota
                 </Button>
               )}
             </div>

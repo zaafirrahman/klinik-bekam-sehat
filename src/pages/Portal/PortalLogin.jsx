@@ -207,7 +207,8 @@ export default function PortalLogin() {
                 <div className="pl-divider-line"></div>
               </div>
               <p className="pl-hint">
-                Kode pasien tertera pada kwitansi kunjungan Anda.<br/>
+                Kode pasien tertera pada nota kunjungan Anda.<br/>
+                Cek nota →
               </p>
             </div>
           </div>
