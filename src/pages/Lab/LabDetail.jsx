@@ -291,7 +291,7 @@ Halo kak, berikut hasil pemeriksaan lab Anda:
 ${results.join('\n')}
 
 Hasil lengkap terlampir.
-Cek riwayat di: https://klinikbekamsehat.netlify.app/portal
+Cek riwayat di: https://klinikbekamsehat.pages.dev/portal
 
 Semoga lekas sehat!`
 
