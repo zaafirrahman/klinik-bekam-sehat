@@ -163,7 +163,7 @@ export default function PortalLogin() {
 
           {/* Brand */}
           <div className="pl-brand">
-            <div className="pl-logo">ب</div>
+            <img className="pl-logo" src="/images/logo1.png" alt="logo" />
             <div className="pl-brand-name">Klinik Bekam Sehat</div>
             <div className="pl-brand-sub">dr. Abdurrahman · Medan</div>
           </div>
@@ -207,8 +207,7 @@ export default function PortalLogin() {
                 <div className="pl-divider-line"></div>
               </div>
               <p className="pl-hint">
-                Kode pasien tertera pada kartu kunjungan Anda.<br/>
-                Hubungi klinik jika Anda belum memiliki kode pasien.
+                Kode pasien tertera pada kwitansi kunjungan Anda.<br/>
               </p>
             </div>
           </div>

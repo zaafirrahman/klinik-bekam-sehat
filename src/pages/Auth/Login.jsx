@@ -115,7 +115,7 @@ export default function Login() {
         <div className="al-wrap">
 
           <div className="al-brand">
-            <div className="al-logo">ب</div>
+            <img className="al-logo" src="/images/logo1.png" alt="logo" />
             <div className="al-brand-name">Klinik Bekam Sehat</div>
             <div className="al-brand-sub">Sistem Manajemen Klinik</div>
           </div>
