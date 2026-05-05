@@ -569,7 +569,7 @@ export default function Landing() {
           <IslamicPattern opacity={0.07} id="ip-hero"/>
           <div className="lh-content">
             <div className="lh-badge">✦ Thibbunnabawi · Berdiri Sejak 2009</div>
-            <h1 className="lh-title">Sehat dengan Sunnah,<br/><em>Sembuh dengan Alam</em></h1>
+            <h1 className="lh-title">Sehat dengan Sunnah,<br/><em>Sembuh secara Alami</em></h1>
             <p className="lh-sub">
               Klinik Bekam Sehat dr. Abdurrahman melayani bekam, akupuntur, ruqyah, khitan, dan pengobatan islami alami untuk kesehatan Anda dan keluarga di Medan sejak 2009.
             </p>

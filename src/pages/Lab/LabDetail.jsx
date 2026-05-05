@@ -121,36 +121,74 @@ export default function LabDetail() {
     else { toast.success('Data lab dihapus'); navigate('/lab') }
   }
 
+  const blobToBase64 = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+
+  const compressImage = (base64, quality = 0.75) => new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const maxW = 800
+      const scale = img.width > maxW ? maxW / img.width : 1
+      canvas.width = img.width * scale
+      canvas.height = img.height * scale
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL('image/jpeg', quality))
+    }
+    img.src = base64
+  })
+
+  const fetchLabAssets = async () => {
+    const results = {}
+    const urls = {
+      layout_url: clinicInfo?.layout_url,
+      signature_url: clinicInfo?.signature_url,
+    }
+    await Promise.all(Object.entries(urls).map(async ([key, url]) => {
+      if (!url) return
+      try {
+        const res = await fetch(url)
+        const blob = await res.blob()
+        const raw = await blobToBase64(blob)
+        results[key] = await compressImage(raw, 0.75)
+      } catch (e) {
+        console.warn('Gagal fetch ' + key + ':', e)
+      }
+    }))
+    return results
+  }
+
   const generatePDF = async () => {
     setGeneratingPdf(true)
     try {
+      const assets = await fetchLabAssets()
+
       const doc = new jsPDF()
       const pageWidth = doc.internal.pageSize.getWidth()
+      const pageHeight = doc.internal.pageSize.getHeight()
       const margin = 20
 
-      // Header
-      doc.setFontSize(16)
-      doc.setFont('helvetica', 'bold')
-      doc.text((clinicInfo?.name || 'KLINIK BEKAM SEHAT').toUpperCase(), pageWidth / 2, 20, { align: 'center' })
-
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      if (clinicInfo?.address) {
-        doc.text(`${clinicInfo.address} · Telp: ${clinicInfo.phone || '-'}`, pageWidth / 2, 27, { align: 'center' })
+      // Kop surat full page (layer paling bawah)
+      if (assets.layout_url) {
+        doc.addImage(assets.layout_url, 'JPEG', 0, 0, pageWidth, pageHeight)
       }
-
-      doc.setLineWidth(0.5)
-      doc.line(margin, 32, pageWidth - margin, 32)
 
       doc.setFontSize(13)
       doc.setFont('helvetica', 'bold')
-      doc.text('HASIL PEMERIKSAAN LABORATORIUM', pageWidth / 2, 42, { align: 'center' })
+      doc.text('HASIL PEMERIKSAAN LABORATORIUM', pageWidth / 2, 55, { align: 'center' })
 
       doc.setLineWidth(0.3)
-      doc.line(margin, 47, pageWidth - margin, 47)
+      doc.line(margin, 60, pageWidth - margin, 60)
 
       // Data Pasien
-      let y = 57
+      let y = 70
       doc.setFontSize(11)
       doc.setFont('helvetica', 'bold')
       doc.text('DATA PASIEN', margin, y)
@@ -256,14 +294,29 @@ export default function LabDetail() {
         y += noteLines.length * 6 + 4
       }
 
-      // Tanda tangan
-      const sigY = y + 20
+      // Tanggal & nama dokter
+      const sigX = pageWidth - margin - 60
+      const sigY = pageHeight - 60
+
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
       doc.text(`Medan, ${new Date(lab.lab_date).toLocaleDateString('id-ID', {
         day: 'numeric', month: 'long', year: 'numeric'
-      })}`, pageWidth - margin - 60, y)
-      doc.text('Dokter / Terapis,', pageWidth - margin - 60, y + 8)
-      doc.line(pageWidth - margin - 60, sigY, pageWidth - margin, sigY)
-      doc.text(clinicInfo?.doctor || 'Klinik Bekam Sehat', pageWidth - margin - 60, sigY + 7)
+      })}`, sigX, sigY - 35)
+      doc.text('Dokter / Terapis,', sigX, sigY - 28)
+
+      // TTD & Stempel — fixed di bawah halaman
+      if (assets.signature_url) {
+        const sigX = pageWidth - margin - 60
+        const sigY = pageHeight - 60
+        doc.addImage(assets.signature_url, 'JPEG', sigX - 10, sigY - 25, 66, 40)
+      }
+
+      // Garis + nama dokter
+      doc.line(sigX, sigY + 17, sigX + 55, sigY + 17)
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.text(clinicInfo?.doctor || 'Dokter / Terapis', sigX, sigY + 23)
 
       // Upload ke storage
       const pdfBlob = doc.output('blob')

@@ -107,7 +107,7 @@ export default function VisitDetail() {
     // Fetch clinic info
     supabase
       .from('clinic_settings')
-      .select('name')
+      .select('name, address, phone, doctor, layout_url, stamp_url, signature_url')
       .eq('id', 1)
       .single()
       .then(({ data }) => setClinicInfo(data))
@@ -221,39 +221,76 @@ export default function VisitDetail() {
       toast.success('Checkout berhasil! Pemasukan tercatat.')
       setCheckoutOpen(false)
       fetchVisit()
-      setTimeout(() => generateNota(checkoutItems), 500)
+      setTimeout(() => generateNota(checkoutItems), 500) // generateNota is now async
     }
   }
 
-  const generateNota = (items) => {
-    console.log('generateNota called', items, clinicInfo)
+  const blobToBase64 = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+
+  const compressImage = (base64, quality = 0.7) => new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      // Scale down ke max 800px width
+      const maxW = 800
+      const scale = img.width > maxW ? maxW / img.width : 1
+      canvas.width = img.width * scale
+      canvas.height = img.height * scale
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL('image/jpeg', quality))
+    }
+    img.src = base64
+  })
+
+  const fetchAssets = async () => {
+    const keys = ['layout_url', 'stamp_url']
+    const results = {}
+    await Promise.all(keys.map(async (key) => {
+      const url = clinicInfo?.[key]
+      if (!url) return
+      try {
+        const res = await fetch(url)
+        const blob = await res.blob()
+        if (key === 'stamp_url') {
+          // Stamp LUNAS tetap PNG
+          results[key] = await blobToBase64(blob)
+        } else {
+          // Layout compress ke JPEG
+          const raw = await blobToBase64(blob)
+          results[key] = await compressImage(raw, 0.75)
+        }
+      } catch (e) {
+        console.warn(`Gagal fetch ${key}:`, e)
+      }
+    }))
+    return results
+  }
+
+  const generateNota = async (items) => {
+    const assets = await fetchAssets()
+
     const doc = new jsPDF({ format: 'a5' })
     const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
     const margin = 15
 
-    // Header
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text(clinicInfo?.name?.toUpperCase() || 'KLINIK BEKAM SEHAT', pageWidth / 2, 18, { align: 'center' })
-
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'normal')
-    if (clinicInfo?.address) {
-      doc.text(`${clinicInfo.address} · Telp: ${clinicInfo.phone || '-'}`, pageWidth / 2, 24, { align: 'center' })
+    // Kop surat full page (layer paling bawah)
+    if (assets.layout_url) {
+      doc.addImage(assets.layout_url, 'JPEG', 0, 0, pageWidth, pageHeight)
     }
-
-    doc.setLineWidth(0.5)
-    doc.line(margin, 28, pageWidth - margin, 28)
 
     // Judul
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
     doc.text('NOTA PEMBAYARAN', pageWidth / 2, 36, { align: 'center' })
-
-    doc.setLineWidth(0.3)
-    doc.line(margin, 40, pageWidth - margin, 40)
-
-    // Info pasien
     let y = 48
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
@@ -319,17 +356,12 @@ export default function VisitDetail() {
     doc.text('TOTAL', margin, y)
     doc.text(`Rp ${total.toLocaleString('id-ID')}`, pageWidth - margin, y, { align: 'right' })
 
-    y += 10
-    doc.setLineWidth(0.5)
-    doc.line(margin, y, pageWidth - margin, y)
-    y += 10
-
-    // Footer
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(100)
-    doc.text('Terima kasih telah mempercayakan kesehatan Anda kepada kami', pageWidth / 2, y, { align: 'center' })
-    doc.setTextColor(0)
+    // Stempel LUNAS — fixed di bawah halaman
+    if (assets.stamp_url) {
+      const sigY = pageHeight - 55
+      const sigX = pageWidth - margin - 55
+      doc.addImage(assets.stamp_url, 'PNG', sigX + 10, sigY + 5, 45, 23)
+    }
 
     // Download
     const fileName = `nota_${visit.patients?.patient_code}_${visit.visit_date}.pdf`
