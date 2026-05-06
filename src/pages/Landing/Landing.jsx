@@ -30,8 +30,8 @@ const certs = Array.from({ length: 12 }, (_, i) => ({
 const trustStats = [
   { num: '2009', label: 'Berdiri sejak' },
   { num: '12+',  label: 'Sertifikasi resmi' },
-  { num: '15+',  label: 'Tahun pengalaman' },
-  { num: 'PBI',  label: 'Anggota Majelis Syuro' },
+  { num: '18+',  label: 'Tahun pengalaman' },
+  { num: 'PDBI/PBI',  label: 'Pensihat' },
 ]
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -475,9 +475,10 @@ html { scroll-behavior: smooth; }
   .ln-title { font-size: 0.85rem; }
   .ln-sub { font-size: 0.62rem; }
 
-  .lh { min-height: 85vh; }
-  .lh-content { padding: 3.5rem 1.25rem 4rem; margin-left: 0; }
-  .lh-sub { font-size: 0.84rem; }
+  .lh { min-height: 80vh; }
+  .lh-content { padding: 2.5rem 1.25rem 3rem; margin-left: 0; }
+  .lh-title { font-size: 1.8rem; line-height: 1.25; }
+  .lh-sub { font-size: 0.8rem; }
   .lh-cta { flex-direction: column; gap: 0.65rem; }
   .lh-cta button { width: 100%; text-align: center; justify-content: center; }
 
@@ -554,7 +555,7 @@ function MediumPosts() {
     <section className="ls ls-medium">
       <div className="ls-in" style={{ position:'relative', zIndex:1 }}>
         <div className="l-div"><span>✦</span></div>
-        <h2 className="l-sh">Artikel Renungan</h2>
+        <h2 className="l-sh">Artikel Kesehatan</h2>
         <p className="l-ssub">EDUKASI & WAWASAN ISLAMI</p>
         <div className="l-medium-loading">Memuat artikel...</div>
       </div>
@@ -741,21 +742,21 @@ export default function Landing() {
               <div className="l-doc-photo-wrap">
                 <img className="l-doc-photo" src="/images/drr.jpeg" alt="dr. Abdurrahman Umar"/>
                 <div className="l-doc-badge">
-                  <div className="l-doc-badge-num">15+</div>
+                  <div className="l-doc-badge-num">18+</div>
                   <div className="l-doc-badge-lbl">Tahun<br/>Praktek</div>
                 </div>
               </div>
               <div>
                 <div className="l-doc-tag">✦ Pendiri & Dokter Utama</div>
                 <h3 className="l-doc-name">dr. Abdurrahman Umar</h3>
-                <div className="l-doc-title">Anggota Majelis Syuro · Perkumpulan Bekam Indonesia (PBI) Pusat</div>
+                <div className="l-doc-title">Penasihat · Perhimpunan Dokter Bekam Indonesia (PDBI)</div>
                 <p className="l-doc-bio">Lulusan Fakultas Kedokteran Universitas Hasanuddin Makassar yang merintis Klinik Bekam Sehat sejak 2009. Mengenal bekam dari pelatihan langsung di Malaysia dan memperdalam akupuntur dari spesialis RS Cipto Mangunkusumo Jakarta. Aktif berdakwah melalui seminar kesehatan dan kajian masjid di seluruh Sumatera Utara.</p>
-                <p className="l-doc-bio">Dalam lebih dari 15 tahun praktek, beliau telah menangani pasien dengan beragam kondisi — dari penyakit ringan hingga berat seperti diabetes, stroke, cardiovaskular, dan gastritis. Kliniknya juga menjadi pusat pelatihan bekam dan akupuntur yang alumninya telah tersebar ke seluruh Indonesia bahkan mancanegara.</p>
+                <p className="l-doc-bio">Dalam lebih dari 18 tahun praktek, beliau telah menangani pasien dengan beragam kondisi — dari penyakit ringan hingga berat seperti diabetes, stroke, cardiovaskular, dan gastritis. Kliniknya juga menjadi pusat pelatihan bekam dan akupuntur yang alumninya telah tersebar ke seluruh Indonesia bahkan mancanegara.</p>
                 <div className="l-doc-creds">
                   <div className="l-cred">🎓 FK Universitas Hasanuddin</div>
                   <div className="l-cred">📜 Sertifikasi Bekam Malaysia</div>
                   <div className="l-cred">📜 Akupuntur RS Cipto Mangunkusumo</div>
-                  <div className="l-cred">🏛 Anggota PBI Pusat Jakarta</div>
+                  <div className="l-cred">🏛 Penasihat PDBI</div>
                 </div>
                 <div className="l-doc-timeline">
                   <div className="l-tl-item"><div className="l-tl-role">Dokter Klinik — PT Listrindo Jababeka, Cikarang</div></div>
