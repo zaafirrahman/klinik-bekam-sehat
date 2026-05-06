@@ -359,14 +359,16 @@ export default function LabDetail() {
     const pesan =
 `*${clinicInfo?.name || 'Klinik Bekam Sehat'}*
 
-Halo kak, berikut hasil pemeriksaan lab Anda:
+_Bismillah_
+Berikut hasil pemeriksaan lab Anda:
 
 ${results.join('\n')}
 
-Hasil lengkap terlampir.
-Cek riwayat di: https://klinikbekamsehat.pages.dev/portal
+Cek riwayat pemeriksaan di: 
+https://klinikbekamsehat.pages.dev/portal
 
-Semoga lekas sehat!`
+_Wassalam,_
+Semoga sehat selalu!`
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(pesan)}`
     window.open(url, '_blank')

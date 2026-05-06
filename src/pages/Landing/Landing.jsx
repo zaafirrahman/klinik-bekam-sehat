@@ -123,12 +123,19 @@ function ServiceCard({ s }) {
   const icons = { bekam:'🩸', akupuntur:'📍', khitan:'✂️', ruqyah:'📖', 'pengobatan-umum':'🏥', 'cek-lab':'🔬', pelatihan:'📚', 'apotek-herbal':'🌿' }
   return (
     <div className={`l-svc${s.featured ? ' ft' : ''}`}>
-      {imgErr
-        ? <div className="l-svc-img-ph">{icons[s.key]}</div>
-        : <img className="l-svc-img" src={s.img} alt={s.name} onError={() => setImgErr(true)} loading="lazy"/>
-      }
+
+      {/* Wrapper gambar — tambah relative di sini */}
+      <div className="l-svc-img-wrap relative">
+        {imgErr
+          ? <div className="l-svc-img-ph">{icons[s.key]}</div>
+          : <img className="l-svc-img" src={s.img} alt={s.name} onError={() => setImgErr(true)} loading="lazy"/>
+        }
+        {/* Badge dipindah ke sini */}
+        {s.featured && <div className="absolute top-2 left-2 l-svc-badge">Layanan Unggulan</div>}
+      </div>
+
       <div className="l-svc-body">
-        {s.featured && <div className="l-svc-badge">Layanan Unggulan</div>}
+        {/* Badge dihapus dari sini */}
         <div className="l-svc-arabic">{s.arabic}</div>
         <div className="l-svc-name">{s.name}</div>
         <div className="l-svc-short">{s.short}</div>
@@ -301,6 +308,7 @@ html { scroll-behavior: smooth; }
 .l-svc.ft .l-svc-short { color: #dba83f; }
 .l-svc-desc { font-size: 0.75rem; line-height: 1.58; color: #6B7B6C; }
 .l-svc.ft .l-svc-desc { color: #9ab89c; }
+.l-svc-img-wrap { position: relative; }
 
 /* ── DOCTOR ── */
 .ls-doc { background: linear-gradient(155deg,#EBE2CC 0%,#F5EFE0 100%); position: relative; overflow: hidden; }
@@ -463,6 +471,12 @@ html { scroll-behavior: smooth; }
   .l-svc-short { font-size: 0.6rem; margin-bottom: 0.35rem; }
   .l-svc-desc { font-size: 0.7rem; line-height: 1.5; }
   .l-svc-badge { font-size: 0.54rem; padding: 0.14rem 0.5rem; }
+  .l-svc-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    /* styling badge yang sudah ada tetap berlaku */
+  }
 
   .l-doc-grid { gap: 2rem; }
   .l-doc-name { font-size: 1.5rem; }
@@ -633,7 +647,7 @@ export default function Landing() {
             <p className="l-ssub">BERPENGALAMAN & BERSERTIFIKAT RESMI</p>
             <div className="l-doc-grid">
               <div className="l-doc-photo-wrap">
-                <img className="l-doc-photo" src="/images/drr.jpg" alt="dr. Abdurrahman Umar"/>
+                <img className="l-doc-photo" src="/images/drr.jpeg" alt="dr. Abdurrahman Umar"/>
                 <div className="l-doc-badge">
                   <div className="l-doc-badge-num">15+</div>
                   <div className="l-doc-badge-lbl">Tahun<br/>Praktek</div>

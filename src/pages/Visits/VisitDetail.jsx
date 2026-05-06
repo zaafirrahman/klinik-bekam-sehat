@@ -399,7 +399,8 @@ export default function VisitDetail() {
     const pesan = 
 `*${clinicInfo?.name || 'Klinik Bekam Sehat'}*
 
-Halo kak, terima kasih sudah berkunjung hari ini!
+_Assalamu'alaikum_
+Terima kasih sudah berkunjung hari ini!
 
 Nota pembayaran terlampir.
 Total: *Rp ${total.toLocaleString('id-ID')}*
@@ -407,7 +408,8 @@ Total: *Rp ${total.toLocaleString('id-ID')}*
 Cek riwayat kunjungan Anda di:
 https://klinikbekamsehat.pages.dev/portal
 
-Semoga lekas sehat!`
+_Wassalam,_
+Semoga sehat selalu!`
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(pesan)}`
     window.open(url, '_blank')
@@ -783,59 +785,63 @@ Semoga lekas sehat!`
 
       {/* Checkout Dialog */}
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Checkout</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
-            <p className="text-sm text-muted-foreground">
-              Review dan konfirmasi harga sebelum checkout. Harga bisa diedit.
-            </p>
-            {checkoutItems.map((item, idx) => (
-              <div key={item.id} className="border rounded-lg p-3 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-sm">{item.services?.name}</span>
-                  <span className="text-sm text-muted-foreground">x{item.quantity}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Harga (Rp)</Label>
-                    <Input
-                      type="number"
-                      value={checkoutItems[idx].final_price}
-                      onChange={e => {
-                        const updated = [...checkoutItems]
-                        updated[idx].final_price = e.target.value
-                        setCheckoutItems(updated)
-                      }}
-                    />
+
+          <div className="overflow-y-auto flex-1 pr-1">
+            <div className="space-y-3 mt-2">
+              <p className="text-sm text-muted-foreground">
+                Review dan konfirmasi harga sebelum checkout. Harga bisa diedit.
+              </p>
+              {checkoutItems.map((item, idx) => (
+                <div key={item.id} className="border rounded-lg p-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm">{item.services?.name}</span>
+                    <span className="text-sm text-muted-foreground">x{item.quantity}</span>
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Catatan</Label>
-                    <Input
-                      placeholder="diskon, gratis..."
-                      value={checkoutItems[idx].note}
-                      onChange={e => {
-                        const updated = [...checkoutItems]
-                        updated[idx].note = e.target.value
-                        setCheckoutItems(updated)
-                      }}
-                    />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Harga (Rp)</Label>
+                      <Input
+                        type="number"
+                        value={checkoutItems[idx].final_price}
+                        onChange={e => {
+                          const updated = [...checkoutItems]
+                          updated[idx].final_price = e.target.value
+                          setCheckoutItems(updated)
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Catatan</Label>
+                      <Input
+                        placeholder="diskon, gratis..."
+                        value={checkoutItems[idx].note}
+                        onChange={e => {
+                          const updated = [...checkoutItems]
+                          updated[idx].note = e.target.value
+                          setCheckoutItems(updated)
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-right text-sm font-medium">
+                    Subtotal: Rp {(checkoutItems[idx].final_price * item.quantity).toLocaleString('id-ID')}
                   </div>
                 </div>
-                <div className="text-right text-sm font-medium">
-                  Subtotal: Rp {(checkoutItems[idx].final_price * item.quantity).toLocaleString('id-ID')}
-                </div>
+              ))}
+              <div className="border-t pt-3 flex justify-between font-semibold">
+                <span>Total</span>
+                <span>
+                  Rp {checkoutItems.reduce((sum, i) => sum + (parseFloat(i.final_price) * i.quantity), 0).toLocaleString('id-ID')}
+                </span>
               </div>
-            ))}
-            <div className="border-t pt-3 flex justify-between font-semibold">
-              <span>Total</span>
-              <span>
-                Rp {checkoutItems.reduce((sum, i) => sum + (parseFloat(i.final_price) * i.quantity), 0).toLocaleString('id-ID')}
-              </span>
             </div>
           </div>
-          <div className="flex justify-end gap-2 mt-4">
+
+          <div className="flex justify-end gap-2 mt-4 pt-3 border-t">
             <Button variant="outline" onClick={() => setCheckoutOpen(false)}>Batal</Button>
             <Button onClick={handleCheckout}>Konfirmasi Checkout</Button>
           </div>
