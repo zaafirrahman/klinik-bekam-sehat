@@ -317,6 +317,8 @@ export default function LabDetail() {
       doc.setFontSize(10)
       doc.setFont('helvetica', 'normal')
       doc.text(clinicInfo?.doctor || 'Dokter / Terapis', sigX, sigY + 23)
+      doc.setFontSize(8)
+      doc.text(`SIP: ${clinicInfo?.sip_number || '-'}`, sigX, sigY + 27)
 
       // Upload ke storage
       const pdfBlob = doc.output('blob')
