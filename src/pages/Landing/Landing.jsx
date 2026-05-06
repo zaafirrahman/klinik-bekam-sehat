@@ -425,6 +425,35 @@ html { scroll-behavior: smooth; }
 .l-footer-login { background: none; border: none; font-size: 0.68rem; color: #3a5240; cursor: pointer; font-family: 'Lato', sans-serif; text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
 .l-footer-login:hover { color: #7A9E7E; }
 
+/* ── MEDIUM ARTICLES ── */
+.ls-medium { background: #FAF6EE; position: relative; overflow: hidden; }
+.l-medium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.l-medium-card {
+  background: white;
+  border-radius: 16px;
+  border: 1.5px solid #EDE4D0;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+.l-medium-card:hover { transform: translateY(-5px); box-shadow: 0 10px 32px rgba(44,62,45,0.11); border-color: #7A9E7E; }
+.l-medium-img { width: 100%; height: 190px; object-fit: cover; display: block; background: #f0ebe0; }
+.l-medium-body { padding: 1.3rem 1.3rem 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.l-medium-date { font-size: 0.7rem; color: #C5943A; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.l-medium-title { font-family: 'Playfair Display', serif; font-size: 1.02rem; font-weight: 700; color: #1a2b1b; line-height: 1.4; }
+.l-medium-desc { font-size: 0.8rem; color: #6B7B6C; line-height: 1.65; flex: 1; }
+.l-medium-read { font-size: 0.78rem; color: #C5943A; font-weight: 700; margin-top: 0.75rem; letter-spacing: 0.02em; }
+.l-medium-loading { text-align: center; padding: 3rem; color: #7A9E7E; font-size: 0.85rem; }
+.l-medium-empty { display: none; }
+
 /* ── RESPONSIVE: TABLET ── */
 @media (max-width: 900px) {
   .l-doc-grid { grid-template-columns: 1fr; }
@@ -493,6 +522,9 @@ html { scroll-behavior: smooth; }
   .l-map-wrap { min-height: 220px; }
   .l-map-wrap iframe { min-height: 220px; }
 
+  .l-medium-grid { grid-template-columns: 1fr; }
+  .l-medium-img { height: 170px; }
+
   .l-footer-in { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
 
   /* Lightbox mobile */
@@ -501,6 +533,66 @@ html { scroll-behavior: smooth; }
   .lb-img-wrap img { max-height: 70vh; }
 }
 `
+
+// ─── MEDIUM POSTS ─────────────────────────────────────────────────────────────
+
+const MEDIUM_RSS = 'https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@klinikbekamsehat'
+
+function MediumPosts() {
+  const [posts, setPosts]     = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(MEDIUM_RSS)
+      .then(r => r.json())
+      .then(data => { if (data.status === 'ok') setPosts(data.items.slice(0, 3)) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return (
+    <section className="ls ls-medium">
+      <div className="ls-in" style={{ position:'relative', zIndex:1 }}>
+        <div className="l-div"><span>✦</span></div>
+        <h2 className="l-sh">Artikel Renungan</h2>
+        <p className="l-ssub">EDUKASI & WAWASAN ISLAMI</p>
+        <div className="l-medium-loading">Memuat artikel...</div>
+      </div>
+    </section>
+  )
+
+  if (!posts.length) return null
+
+  return (
+    <section id="artikel" className="ls ls-medium">
+      <IslamicPattern opacity={0.04} id="ip-medium"/>
+      <div className="ls-in" style={{ position:'relative', zIndex:1 }}>
+        <div className="l-div"><span>✦</span></div>
+        <h2 className="l-sh">Artikel Kesehatan</h2>
+        <p className="l-ssub">EDUKASI & WAWASAN ISLAMI</p>
+        <div className="l-medium-grid">
+          {posts.map((post, i) => (
+            <a key={i} href={post.link} target="_blank" rel="noopener noreferrer" className="l-medium-card">
+              {post.thumbnail && (
+                <img src={post.thumbnail} alt={post.title} className="l-medium-img" loading="lazy"/>
+              )}
+              <div className="l-medium-body">
+                <div className="l-medium-date">
+                  {new Date(post.pubDate).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}
+                </div>
+                <h3 className="l-medium-title">{post.title}</h3>
+                <p className="l-medium-desc">
+                  {post.description.replace(/<[^>]+>/g, '').slice(0, 130)}...
+                </p>
+                <span className="l-medium-read">Baca selengkapnya →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
@@ -545,7 +637,7 @@ export default function Landing() {
 
           {/* Desktop links */}
           <div className="ln-links">
-            {['layanan','dokter','galeri','kontak'].map(id => (
+            {['layanan','dokter','artikel','galeri','kontak'].map(id => (
               <button key={id} className="ln-link" onClick={() => handleNavClick(id)}>
                 {id.charAt(0).toUpperCase() + id.slice(1)}
               </button>
@@ -564,9 +656,9 @@ export default function Landing() {
 
         {/* Mobile drawer */}
         <div className={`ln-drawer${menuOpen ? ' open' : ''}`}>
-          {['layanan','dokter','galeri','kontak'].map(id => (
+          {['layanan','dokter','artikel','galeri','kontak'].map(id => (
             <button key={id} className="ln-drawer-link" onClick={() => handleNavClick(id)}>
-              {id === 'layanan' && '🌿'}{id === 'dokter' && '👨‍⚕️'}{id === 'galeri' && '📸'}{id === 'kontak' && '📍'}
+              {id === 'layanan' && '🌿'}{id === 'dokter' && '👨‍⚕️'}{id === 'artikel' && '📝'}{id === 'galeri' && '📸'}{id === 'kontak' && '📍'}
               {id.charAt(0).toUpperCase() + id.slice(1)}
             </button>
           ))}
@@ -681,6 +773,9 @@ export default function Landing() {
             </div>
           </div>
         </section>
+
+        {/* ── ARTIKEL MEDIUM ── */}
+        <MediumPosts />
 
         {/* ── GALERI ── */}
         <section id="galeri" className="ls ls-gal">
