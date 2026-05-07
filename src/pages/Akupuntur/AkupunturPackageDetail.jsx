@@ -264,32 +264,33 @@ export default function AkupunturPackageDetail() {
         ) : (
           <div className="space-y-2">
             {packageVisits.map((visit, idx) => (
-              <div key={visit.id} className="border rounded-lg p-3 flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Badge variant="outline" className="font-mono text-xs shrink-0">
-                    {idx + 1}. {visit.visit_date}
-                  </Badge>
-                  <p className="text-sm text-muted-foreground truncate">
+              <div key={visit.id} className="border rounded-lg p-3">
+                {/* Mobile */}
+                <div className="md:hidden">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="outline" className="font-mono text-xs shrink-0">{idx + 1}</Badge>
+                    <span className="text-sm font-medium">{visit.visit_date}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
                     {visit.chief_complaint || 'Tanpa keluhan'}
                   </p>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => navigate(`/visits/${visit.id}`)}>Detail</Button>
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={() => handleRemoveVisit(visit.id)}>Hapus</Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-blue-600 h-8 text-xs"
-                    onClick={() => navigate(`/visits/${visit.id}`)}
-                  >
-                    Detail
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive h-8 text-xs"
-                    onClick={() => handleRemoveVisit(visit.id)}
-                  >
-                    Hapus
-                  </Button>
+                {/* Desktop */}
+                <div className="hidden md:flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Badge variant="outline" className="font-mono text-xs shrink-0">{idx + 1}. {visit.visit_date}</Badge>
+                    <p className="text-sm text-muted-foreground truncate max-w-sm">
+                      {visit.chief_complaint || 'Tanpa keluhan'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button size="sm" variant="ghost" className="text-blue-600 h-8 text-xs" onClick={() => navigate(`/visits/${visit.id}`)}>Detail</Button>
+                    <Button size="sm" variant="ghost" className="text-destructive h-8 text-xs" onClick={() => handleRemoveVisit(visit.id)}>Hapus</Button>
+                  </div>
                 </div>
               </div>
             ))}
