@@ -35,13 +35,25 @@ export default function AkupunturPackageDetail() {
   const [selectedVisit, setSelectedVisit] = useState(null)
   const [visitPopover, setVisitPopover] = useState(false)
 
+  // Helper function to calculate age from birth_date (exact)
+  const calculateAge = (birthDate) => {
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return `${age} tahun`
+  }
+
   const fetchPackageData = async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('akupuntur_packages')
       .select(`
         *,
-        patients (id, name, patient_code, phone, birth_year, address)
+        patients (id, name, patient_code, phone, birth_date, address)
       `)
       .eq('id', id)
       .single()
@@ -196,7 +208,7 @@ export default function AkupunturPackageDetail() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Usia</span>
-              <span>{packageData.patients?.birth_year ? `~ ${currentYear - packageData.patients.birth_year} tahun` : '-'}</span>
+              <span>{packageData.patients?.birth_date ? calculateAge(packageData.patients.birth_date) : '-'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Telepon</span>

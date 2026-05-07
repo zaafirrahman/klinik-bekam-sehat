@@ -29,13 +29,25 @@ export default function ConsultationDetail() {
   const [editForm, setEditForm] = useState({})
   const [generatingPdf, setGeneratingPdf] = useState(false)
 
+  // Helper function to calculate age from birth_date (exact)
+  const calculateAge = (birthDate) => {
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return `${age} tahun`
+  }
+
   const fetchConsult = async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('consultations')
       .select(`
         *,
-        patients(name, patient_code, birth_year, address, phone),
+        patients(name, patient_code, birth_date, address, phone),
         visits(visit_date, blood_pressure, chief_complaint)
       `)
       .eq('id', id)
@@ -139,7 +151,7 @@ export default function ConsultationDetail() {
       const patientData = [
         ['Nama', consult.patients?.name || '-'],
         ['Kode Pasien', consult.patients?.patient_code || '-'],
-        ['Usia', consult.patients?.birth_year ? `~ ${currentYear - consult.patients.birth_year} tahun` : '-'],
+        ['Usia', consult.patients?.birth_date ? calculateAge(consult.patients.birth_date) : '-'],
         ['Alamat', consult.patients?.address || '-'],
         ['No. Telepon', consult.patients?.phone || '-'],
         ['Tanggal Konsultasi', consult.consult_date],
@@ -289,7 +301,7 @@ export default function ConsultationDetail() {
             {[
               ['Nama', consult.patients?.name],
               ['Kode', consult.patients?.patient_code],
-              ['Usia', consult.patients?.birth_year ? `~ ${currentYear - consult.patients.birth_year} tahun` : '-'],
+              ['Usia', consult.patients?.birth_date ? calculateAge(consult.patients.birth_date) : '-'],
               ['Telepon', consult.patients?.phone || '-'],
               ['Alamat', consult.patients?.address || '-'],
             ].map(([label, value]) => (

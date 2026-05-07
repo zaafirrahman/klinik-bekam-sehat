@@ -70,7 +70,7 @@ export default function VisitDetail() {
       .from('visits')
       .select(`
         *,
-        patients (id, name, patient_code, phone, birth_year, address),
+        patients (id, name, patient_code, phone, birth_date, address),
         visit_services (
           id, quantity, final_price, note, status,
           services (id, name, category, service_code, unit)
@@ -422,12 +422,23 @@ Semoga sehat selalu!`
   if (loading) return <div className="p-6 text-muted-foreground">Memuat data...</div>
   if (!visit) return null
 
-  const currentYear = new Date().getFullYear()
   const pendingItems = visit.visit_services?.filter(s => s.status === 'pending') || []
   const doneItems = visit.visit_services?.filter(s => s.status === 'done') || []
   const totalPending = pendingItems.reduce((sum, s) => sum + (s.final_price * s.quantity), 0)
   const totalDone = doneItems.reduce((sum, s) => sum + (s.final_price * s.quantity), 0)
   const hasDoneItems = doneItems.length > 0
+
+  // Helper function to calculate age from birth_date (exact)
+  const calculateAge = (birthDate) => {
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return `${age} tahun`
+  }
 
   return (
     <div className="space-y-6">
@@ -487,7 +498,7 @@ Semoga sehat selalu!`
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Usia</span>
-              <span>{visit.patients?.birth_year ? `~ ${currentYear - visit.patients.birth_year} tahun` : '-'}</span>
+              <span>{visit.patients?.birth_date ? calculateAge(visit.patients.birth_date) : '-'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Telepon</span>

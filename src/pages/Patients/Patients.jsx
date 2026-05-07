@@ -20,8 +20,19 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-const emptyForm = { name: '', birth_year: '', address: '', phone: '' }
-const currentYear = new Date().getFullYear()
+const emptyForm = { name: '', birth_date: '', address: '', phone: '' }
+
+// Helper function to calculate age from birth_date (exact)
+const calculateAge = (birthDate) => {
+  const today = new Date()
+  const birth = new Date(birthDate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return `${age} tahun`
+}
 
 function PatientForm({ form, setForm, onSubmit, submitLabel }) {
   return (
@@ -36,14 +47,11 @@ function PatientForm({ form, setForm, onSubmit, submitLabel }) {
         />
       </div>
       <div className="space-y-2">
-        <Label>Tahun Lahir</Label>
+        <Label>Tanggal Lahir</Label>
         <Input
-          type="number"
-          placeholder="contoh: 1985"
-          min="1900"
-          max={currentYear}
-          value={form.birth_year}
-          onChange={e => setForm({ ...form, birth_year: e.target.value })}
+          type="date"
+          value={form.birth_date}
+          onChange={e => setForm({ ...form, birth_date: e.target.value })}
         />
       </div>
       <div className="space-y-2">
@@ -113,7 +121,7 @@ export default function Patients() {
     e.preventDefault()
     const { error } = await supabase.from('patients').insert({
       name: addForm.name,
-      birth_year: addForm.birth_year ? parseInt(addForm.birth_year) : null,
+      birth_date: addForm.birth_date || null,
       address: addForm.address || null,
       phone: addForm.phone || null,
     })
@@ -131,7 +139,7 @@ export default function Patients() {
     setEditTarget(p)
     setEditForm({
       name: p.name,
-      birth_year: p.birth_year || '',
+      birth_date: p.birth_date || '',
       address: p.address || '',
       phone: p.phone || '',
     })
@@ -144,7 +152,7 @@ export default function Patients() {
       .from('patients')
       .update({
         name: editForm.name,
-        birth_year: editForm.birth_year ? parseInt(editForm.birth_year) : null,
+        birth_date: editForm.birth_date || null,
         address: editForm.address || null,
         phone: editForm.phone || null,
       })
@@ -234,7 +242,7 @@ export default function Patients() {
                   <p className="font-medium text-sm truncate">{p.name}</p>
                 </div>
                 <p className="text-xs text-muted-foreground shrink-0">
-                  {p.birth_year ? `~ ${currentYear - p.birth_year} th` : '-'}
+                  {p.birth_date ? calculateAge(p.birth_date) : '-'}
                 </p>
               </div>
               <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
@@ -289,7 +297,7 @@ export default function Patients() {
                   </TableCell>
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>
-                    {p.birth_year ? `${currentYear - p.birth_year} th` : '-'}
+                    {p.birth_date ? calculateAge(p.birth_date) : '-'}
                   </TableCell>
                   <TableCell>{p.phone || '-'}</TableCell>
                   <TableCell className="max-w-xs truncate">{p.address || '-'}</TableCell>

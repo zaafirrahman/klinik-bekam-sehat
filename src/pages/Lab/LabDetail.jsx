@@ -62,7 +62,17 @@ export default function LabDetail() {
   const [generatingPdf, setGeneratingPdf] = useState(false)
   const [clinicInfo, setClinicInfo] = useState(null)
 
-  const currentYear = new Date().getFullYear()
+  // Helper function to calculate age from birth_date (exact)
+  const calculateAge = (birthDate) => {
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return `${age} tahun`
+  }
 
   const fetchLab = async () => {
     setLoading(true)
@@ -71,7 +81,7 @@ export default function LabDetail() {
         .from('lab_results')
         .select(`
           *,
-          patients(name, patient_code, birth_year, address, phone),
+          patients(name, patient_code, birth_date, address, phone),
           visits(visit_date, chief_complaint)
         `)
         .eq('id', id)
@@ -198,7 +208,7 @@ export default function LabDetail() {
       const patientData = [
         ['Nama', lab.patients?.name || '-'],
         ['Kode Pasien', lab.patients?.patient_code || '-'],
-        ['Usia', lab.patients?.birth_year ? `~${currentYear - lab.patients.birth_year} tahun` : '-'],
+        ['Usia', lab.patients?.birth_date ? calculateAge(lab.patients.birth_date) : '-'],
         ['Alamat', lab.patients?.address || '-'],
         ['No. Telepon', lab.patients?.phone || '-'],
         ['Tanggal Pemeriksaan', lab.lab_date],
@@ -424,7 +434,7 @@ Semoga sehat selalu!`
             {[
               ['Nama', lab.patients?.name],
               ['Kode', lab.patients?.patient_code],
-              ['Usia', lab.patients?.birth_year ? `~${currentYear - lab.patients.birth_year} tahun` : '-'],
+              ['Usia', lab.patients?.birth_date ? calculateAge(lab.patients.birth_date) : '-'],
               ['Telepon', lab.patients?.phone || '-'],
               ['Alamat', lab.patients?.address || '-'],
             ].map(([label, value]) => (

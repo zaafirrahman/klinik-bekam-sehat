@@ -57,7 +57,17 @@ export default function PatientDetail() {
   const [loading, setLoading] = useState(true)
   const [labs, setLabs] = useState([])
 
-  const currentYear = new Date().getFullYear()
+  // Helper function to calculate age from birth_date (exact)
+  const calculateAge = (birthDate) => {
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return `${age} tahun`
+  }
 
   const fetchAll = async () => {
     setLoading(true)
@@ -130,9 +140,9 @@ export default function PatientDetail() {
           <h1 className="text-2xl font-semibold">{patient.name}</h1>
           <div className="flex items-center gap-2 mt-0.5">
             <Badge variant="outline" className="font-mono">{patient.patient_code}</Badge>
-            {patient.birth_year && (
+            {patient.birth_date && (
               <span className="text-sm text-muted-foreground">
-                ~ {currentYear - patient.birth_year} tahun
+                {calculateAge(patient.birth_date)}
               </span>
             )}
           </div>
@@ -149,7 +159,7 @@ export default function PatientDetail() {
             {[
               ['No. Telepon', patient.phone || '-'],
               ['Alamat', patient.address || '-'],
-              ['Tahun Lahir', patient.birth_year || '-'],
+              ['Tanggal Lahir', patient.birth_date ? new Date(patient.birth_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'],
               ['Terdaftar sejak', new Date(patient.created_at).toLocaleDateString('id-ID', {
                 day: 'numeric', month: 'long', year: 'numeric'
               })],
