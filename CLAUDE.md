@@ -54,6 +54,9 @@ klinik-bekam-sehat/
 │   │   │   └── FinanceMonthly.jsx     # Monthly finance + net profit (owner only)
 │   │   ├── Reports/
 │   │   │   └── Reports.jsx            # Charts + top services (owner only)
+│   │   ├── Akupuntur/
+│   │   │   ├── AkupunturPackages.jsx  # Acupuncture package list + create
+│   │   │   └── AkupunturPackageDetail.jsx # Package detail + progress + visit tracking
 │   │   └── Settings/
 │   │       └── Settings.jsx           # Services/products, clinic info, user management
 │   ├── components/
@@ -87,6 +90,7 @@ klinik-bekam-sehat/
 | `consultations` | Consultation records (reg_number auto-generated: 00.XX.YY format) |
 | `lab_results` | Lab results (blood_sugar+type, uric_acid+gender, cholesterol) |
 | `clinic_settings` | Single-row clinic info (singleton, id=1) — includes `layout_url`, `stamp_url`, `signature_url`, `sip_number`, `doctor` |
+| `akupuntur_packages` | Paket akupuntur pasien (12 sesi, progress tracking via `visited_ids` UUID array, package_code: AKU-YYYY-XXX) |
 
 ### Key Design Decisions
 - **`visit_services.status`**: `pending` → `done` triggers auto-insert to `daily_income`
@@ -101,7 +105,7 @@ klinik-bekam-sehat/
 ### RLS Policies
 - All `authenticated` users: full CRUD on patients, visits, visit_services, consultations, lab_results, services
 - `owner` only: read daily_income, daily_expenses, monthly_expenses, reports
-- `anon`: read-only on patients, visits, visit_services, services, lab_results, clinic_settings (for patient portal)
+- `anon`: read-only on patients, visits, visit_services, services, lab_results, clinic_settings, akupuntur_packages (for patient portal)
 - Storage bucket `konsultasi`: authenticated can upload, public can read
 
 ---
@@ -111,6 +115,7 @@ klinik-bekam-sehat/
 | Feature | Admin | Owner |
 |---------|-------|-------|
 | Pasien, Kunjungan, Konsultasi, Lab | ✅ | ✅ |
+| Paket Akupuntur | ✅ | ✅ |
 | Keuangan Harian (view + input) | ✅ | ✅ |
 | Keuangan Bulanan | ❌ | ✅ |
 | Laporan | ❌ | ✅ |
@@ -155,7 +160,7 @@ Visit → tambah layanan (status: pending)
 - Login: `patient_code` + `phone` → validated against `patients` table
 - Session: stored in `localStorage` (patient_id, name, logged_in_at)
 - Session expires: 24 jam
-- Can view: riwayat kunjungan, hasil lab, download surat lab PDF
+- Can view: riwayat kunjungan, hasil lab, download surat lab PDF, paket akupuntur + riwayat sesi
 - Cannot view: konsultasi, data finansial, data pasien lain
 
 ---

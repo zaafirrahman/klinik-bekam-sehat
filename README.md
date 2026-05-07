@@ -1,4 +1,4 @@
-# 🏥 Klinik Bekam Sehat — Sistem Manajemen Klinik
+# 🏥 Klinik Bekam Sehat | Sistem Manajemen Klinik
 
 Aplikasi manajemen klinik berbasis web untuk **Klinik Bekam Sehat dr. Abdurrahman**, klinik pengobatan islami dan alami di Medan, Indonesia.
 
@@ -24,7 +24,8 @@ Sistem ini dirancang dan dibangun dengan menerapkan prinsip **Lean & Maximum Eff
 - **Hasil Lab** — input gula darah, asam urat, kolesterol, generate surat hasil lab PDF profesional
 - **Keuangan** — laporan harian otomatis dari checkout, pengeluaran manual, laporan bulanan (owner only)
 - **Laporan** — grafik pendapatan, layanan terpopuler (owner only)
-- **Portal Pasien** — pasien bisa cek riwayat kunjungan & download hasil lab sendiri
+- **Paket Akupuntur** — manajemen paket 12 sesi, tracking progress per kunjungan, kode otomatis AKU-YYYY-XXX
+- **Portal Pasien** — pasien bisa cek riwayat kunjungan, hasil lab, dan progres paket akupuntur
 - **PWA** — bisa diinstall di HP layaknya aplikasi native
 - **PDF Profesional** — kop surat, watermark, TTD + stempel dokter, stempel LUNAS
 
@@ -123,6 +124,7 @@ Pastikan environment variables sudah di-set di Cloudflare Pages → Settings →
 | `consultations` | Rekam konsultasi |
 | `lab_results` | Hasil pemeriksaan lab |
 | `clinic_settings` | Info klinik + asset PDF (singleton) |
+| `akupuntur_packages` | Paket akupuntur pasien (progress + visited_ids) |
 
 ---
 
