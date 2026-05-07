@@ -6,6 +6,16 @@ Aplikasi manajemen klinik berbasis web untuk **Klinik Bekam Sehat dr. Abdurrahma
 
 ---
 
+## 💡 Industrial Engineering & Zero-Cost Philosophy
+
+Sistem ini dirancang dan dibangun dengan menerapkan prinsip **Lean & Maximum Efficiency**. Tujuan utamanya adalah menciptakan sistem kelas perusahaan (*enterprise-grade*) untuk klinik mandiri dengan **biaya infrastruktur Rp 0,- (Zero-Cost)** selamanya, menggunakan pemanfaatan *free-tier* layanan modern terbaik:
+
+* **Database & Backend (Supabase Free Tier):** Menggunakan PostgreSQL tangguh, sistem autentikasi, serta Row Level Security (RLS) untuk keamanan data pasien tanpa biaya server database.
+* **Hosting & Deployment (Cloudflare Pages):** Memanfaatkan jaringan *edge* global Cloudflare untuk kecepatan akses instan, SSL gratis, dan *auto-deploy* tanpa batas kuota trafik.
+* **Client-side Processing (jsPDF & Web API):** Semua pemrosesan berat seperti *generate* invoice PDF, surat lab, dan nota dilakukan langsung di browser pengguna (*client-side*). Menghemat beban komputasi server hingga 100%.
+
+---
+
 ## Fitur Utama
 
 - **Manajemen Pasien** — data pasien, kode otomatis (P0001, P0002...), riwayat kunjungan terintegrasi
@@ -79,15 +89,15 @@ npm run lint     # ESLint
 
 ## Role & Akses
 
-| Fitur | Admin | Owner |
-|-------|-------|-------|
-| Pasien, Kunjungan, Konsultasi, Lab | ✅ | ✅ |
-| Keuangan Harian | ✅ | ✅ |
-| Keuangan Bulanan | ❌ | ✅ |
-| Laporan | ❌ | ✅ |
-| Settings Info Klinik | ❌ | ✅ |
-| Settings Pengguna | ❌ | ✅ |
-
+| Fitur | Admin | Owner | Pasien |
+|-------|-------|-------|-------|
+| Pasien, Kunjungan, Konsultasi, Lab | ✅ | ✅ | ❌ |
+| Keuangan Harian | ✅ | ✅ | ❌ |
+| Keuangan Bulanan | ❌ | ✅ | ❌ |
+| Laporan | ❌ | ✅ | ❌ |
+| Settings Info Klinik | ❌ | ✅ | ❌ |
+| Settings Pengguna | ❌ | ✅ | ❌ |
+| Cek Riwayat di Portal Pasien | ❌ | ❌ | ✅ |
 ---
 
 ## Deploy
@@ -118,4 +128,6 @@ Pastikan environment variables sudah di-set di Cloudflare Pages → Settings →
 
 ## Lisensi
 
-Private — dikembangkan khusus untuk Klinik Bekam Sehat dr. Abdurrahman, Medan.
+Proyek ini dilisensikan di bawah **MIT License**. Bebas menggunakan, memodifikasi, mendistribusikan, dan membagikan ulang kode ini untuk kebutuhan pribadi maupun komersial, dengan tetap menyertakan atribusi pembuat asli.
+
+*Developed by [Zaafirrahman](https://zaafirrahman.github.io/) — 2026.*
