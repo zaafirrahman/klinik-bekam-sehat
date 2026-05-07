@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { toast } from 'sonner'
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -112,6 +113,13 @@ const CSS = `
 }
 .pd-stat-num { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: #C5943A; line-height: 1; margin-bottom: 0.2rem; }
 .pd-stat-label { font-size: 0.65rem; color: #7fa882; letter-spacing: 0.03em; line-height: 1.35; }
+.pd-stat-total {
+  grid-column: 1 / -1; text-align: center;
+  background: rgba(197,148,58,0.12); border: 1px solid rgba(197,148,58,0.25);
+  border-radius: 12px; padding: 0.85rem 1rem;
+}
+.pd-stat-total .pd-stat-num { font-size: 1.5rem; color: #e8c06a; }
+.pd-stat-total .pd-stat-label { color: #C5943A; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 
 /* ── MAIN CONTENT ── */
 .pd-body { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
@@ -233,8 +241,14 @@ const CSS = `
   .pd-stats { grid-template-columns: repeat(3,1fr); gap: 0.5rem; }
   .pd-stat { padding: 0.7rem 0.6rem; }
   .pd-stat-num { font-size: 1.1rem; }
-  .pd-subnav-btn { padding: 0.7rem 1rem; font-size: 0.72rem; }
+  .pd-subnav-btn { padding: 0.7rem 0.85rem; font-size: 0.7rem; }
+  .pd-subnav-label-full { display: none; }
+  .pd-subnav-label-short { display: inline; }
   .pd-body { padding: 1.5rem 1rem 3.5rem; }
+}
+@media (min-width: 481px) {
+  .pd-subnav-label-short { display: none; }
+  .pd-subnav-label-full { display: inline; }
 }
 `
 
@@ -245,6 +259,7 @@ export default function PortalDashboard() {
   const [patient, setPatient]   = useState(null)
   const [visits, setVisits]     = useState([])
   const [labs, setLabs]         = useState([])
+  const [packages, setPackages] = useState([])
   const [clinicInfo, setClinicInfo] = useState(null)
   const [loading, setLoading]   = useState(true)
   const [activeTab, setActiveTab] = useState('kunjungan')
@@ -265,7 +280,7 @@ export default function PortalDashboard() {
 
   const fetchData = async (patientId) => {
     setLoading(true)
-    const [patientRes, visitsRes, clinicRes, labRes] = await Promise.all([
+    const [patientRes, visitsRes, clinicRes, labRes, packagesRes] = await Promise.all([
       supabase.from('patients').select('*').eq('id', patientId).single(),
       supabase
         .from('visits')
@@ -281,11 +296,17 @@ export default function PortalDashboard() {
         .select('*')
         .eq('patient_id', patientId)
         .order('lab_date', { ascending: false }),
+      supabase
+        .from('akupuntur_packages')
+        .select('*, visited_ids')
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false }),
     ])
     if (patientRes.data) setPatient(patientRes.data)
     if (visitsRes.data) setVisits(visitsRes.data)
     if (clinicRes.data) setClinicInfo(clinicRes.data)
     if (labRes.data) setLabs(labRes.data)
+    if (packagesRes.data) setPackages(packagesRes.data)
     setLoading(false)
   }
 
@@ -347,15 +368,17 @@ export default function PortalDashboard() {
         {/* ── SUB-NAV tabs ── */}
         <div className="pd-subnav">
           {[
-            { id: 'kunjungan', label: '🏥 Riwayat Kunjungan' },
-            { id: 'lab',       label: '🔬 Riwayat Hasil Lab' },
+            { id: 'kunjungan', label: '🏥 Riwayat Kunjungan', short: '🏥 Kunjungan' },
+            { id: 'akupuntur', label: '📍 Paket Akupuntur',   short: '📍 Akupuntur' },
+            { id: 'lab',       label: '🔬 Riwayat Hasil Lab', short: '🔬 Lab' },
           ].map(t => (
             <button
               key={t.id}
               className={`pd-subnav-btn${activeTab === t.id ? ' active' : ''}`}
               onClick={() => handleTabClick(t.id)}
             >
-              {t.label}
+              <span className="pd-subnav-label-full">{t.label}</span>
+              <span className="pd-subnav-label-short">{t.short}</span>
             </button>
           ))}
         </div>
@@ -383,8 +406,12 @@ export default function PortalDashboard() {
                 <div className="pd-stat-label">Cek Lab</div>
               </div>
               <div className="pd-stat">
-                <div className="pd-stat-num" style={{ fontSize: totalSpent > 9999999 ? '0.95rem' : undefined }}>
-                  {totalSpent > 0 ? fmtRp(totalSpent).replace('Rp ', '') : '—'}
+                <div className="pd-stat-num">{packages.length}</div>
+                <div className="pd-stat-label">Paket Akupuntur</div>
+              </div>
+              <div className="pd-stat pd-stat-total">
+                <div className="pd-stat-num">
+                  {totalSpent > 0 ? fmtRp(totalSpent) : '—'}
                 </div>
                 <div className="pd-stat-label">Total Biaya</div>
               </div>
@@ -450,6 +477,110 @@ export default function PortalDashboard() {
                         </div>
                       </div>
                     )}
+                  </div>
+                )
+              })
+            )}
+          </div>
+
+          {/* ── PAKET AKUPUNTUR ── */}
+          <div id="akupuntur" className="pd-section">
+            <div className="pd-sec-head">
+              <div className="pd-sec-icon">📍</div>
+              <div className="pd-sec-title">Paket Akupuntur</div>
+              {packages.length > 0 && <div className="pd-sec-count">{packages.length} paket</div>}
+            </div>
+
+            {packages.length === 0 ? (
+              <div className="pd-empty">
+                <div className="pd-empty-icon">📍</div>
+                <div className="pd-empty-title">Belum ada paket akupuntur</div>
+                <div className="pd-empty-sub">Paket akupuntur Anda akan muncul di sini setelah mendaftar di klinik.</div>
+              </div>
+            ) : (
+              packages.map(pkg => {
+                const progress = pkg.progress || 0
+                const remaining = pkg.total_sessions - progress
+                return (
+                  <div
+                    key={pkg.id}
+                    className="pd-visit cursor-pointer hover:bg-gray-50"
+                  >
+                    <div className="pd-visit-header">
+                      <div>
+                        <div className="pd-visit-date">{fmtDate(pkg.created_at)}</div>
+                        <div className="pd-visit-complaint">
+                          Nominal: <strong>{fmtRp(pkg.package_amount)}</strong>
+                        </div>
+                      </div>
+                      <div className={`pd-visit-badge ${remaining === 0 ? 'done' : 'pending'}`}>
+                        {remaining === 0 ? '✓ Selesai' : `${remaining} sesi lagi`}
+                      </div>
+                    </div>
+                    <div className="pd-visit-body">
+                      {/* Progress dots */}
+                      <div className="pd-visit-service-row" style={{ justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {Array.from({ length: pkg.total_sessions }).map((_, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                width: 24, height: 24,
+                                borderRadius: 12,
+                                background: i < progress ? '#22c55e' : '#f3f4f6',
+                                border: i < progress ? '2px solid #16a34a' : '2px solid #e5e7eb',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: i < progress ? 'white' : '#9ca3af',
+                                fontSize: 10, fontWeight: 600,
+                              }}
+                              title={i < progress ? `Sesi ${i + 1} selesai` : `Sesi ${i + 1} belum`}
+                            >
+                              {i < progress ? '✓' : i + 1}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Riwayat sesi selesai */}
+                      {progress > 0 && (
+                        <div style={{ marginTop: 12 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#4a5e4b', marginBottom: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                            Riwayat Sesi
+                          </div>
+                          {visits
+                            .filter(v => (pkg.visited_ids || []).includes(v.id))
+                            .sort((a, b) => new Date(a.visit_date) - new Date(b.visit_date))
+                            .map((v, idx) => (
+                              <div key={v.id} className="pd-lab-row">
+                                <div className="pd-lab-param" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{
+                                    width: 18, height: 18, borderRadius: 9,
+                                    background: '#22c55e', color: 'white',
+                                    fontSize: 9, fontWeight: 700,
+                                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                    flexShrink: 0
+                                  }}>
+                                    {idx + 1}
+                                  </span>
+                                  Sesi {idx + 1}
+                                </div>
+                                <div className="pd-lab-val">{fmtDate(v.visit_date)}</div>
+                              </div>
+                            ))
+                          }
+                        </div>
+                      )}
+
+                      {pkg.notes && (
+                        <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
+                          Catatan: {pkg.notes}
+                        </div>
+                      )}
+                      <div className="pd-visit-total">
+                        <div className="pd-visit-total-label">Progress</div>
+                        <div className="pd-visit-total-val">{progress} / {pkg.total_sessions} sesi</div>
+                      </div>
+                    </div>
                   </div>
                 )
               })

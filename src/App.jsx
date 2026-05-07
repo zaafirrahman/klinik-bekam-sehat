@@ -20,6 +20,8 @@ import PortalDashboard from './pages/Portal/PortalDashboard'
 import Landing from './pages/Landing/Landing'
 import LabResults from './pages/Lab/LabResults'
 import LabDetail from './pages/Lab/LabDetail'
+import AkupunturPackages from './pages/Akupuntur/AkupunturPackages'
+import AkupunturPackageDetail from './pages/Akupuntur/AkupunturPackageDetail'
 
 function App() {
   const [session, setSession] = useState(undefined)
@@ -77,6 +79,8 @@ function App() {
             <Route path="*" element={<Navigate to="/patients" replace />} />
             <Route path="/lab" element={<LabResults />} />
             <Route path="/lab/:id" element={<LabDetail />} />
+            <Route path="/akupuntur" element={<AkupunturPackages />} />
+            <Route path="/akupuntur/packages/:id" element={<AkupunturPackageDetail />} />
           </Routes>
         </AppLayout>
       } />
