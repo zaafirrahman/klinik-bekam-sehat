@@ -3,8 +3,8 @@
 Sistem manajemen klinik berbasis web untuk **Klinik Bekam Sehat dr. Abdurrahman**, klinik pengobatan islami dan alami di Medan, Indonesia. Dibangun dengan React + Supabase, di-deploy ke Cloudflare.
 
 **Live:** https://klinikbekamsehat.pages.dev
-**Repo:** Private GitHub (zaafirrahman)  
-**Database:** Supabase (Klinik Bekam Sehat org)
+**Repo:** Public GitHub (zaafirrahman)  
+**Database:** Supabase (Klinik Bekam Sehat)
 
 ---
 
@@ -24,7 +24,7 @@ Sistem manajemen klinik berbasis web untuk **Klinik Bekam Sehat dr. Abdurrahman*
 | Hosting | Cloudflare (auto-deploy from GitHub) |
 
 ---
-
+```
 ## Project Structure
 klinik-bekam-sehat/
 ├── src/
@@ -42,7 +42,7 @@ klinik-bekam-sehat/
 │   │   ├── Visits/
 │   │   │   ├── Visits.jsx             # Visit list
 │   │   │   └── VisitDetail.jsx        # Visit detail + checkout + nota PDF + WA
-ando   ├── Consultations/
+│   │   ├── Consultations/
 │   │   │   ├── Consultations.jsx      # Consultation list
 │   │   │   └── ConsultationDetail.jsx # Consultation detail + surat konsul PDF
 │   │   ├── Lab/
@@ -64,10 +64,10 @@ ando   ├── Consultations/
 │   │   └── supabase.js                # Supabase client (uses VITE_ env vars)
 │   └── assets/                        # Static assets
 ├── public/                            # PWA icons, manifest
-├── netlify.toml                       # Netlify redirect config (SPA routing fix) (host switched to Cloudflare)
+├── netlify.toml                       # Netlify redirect config (switched to Cloudflare)
 ├── .env                               # Never commit! Contains Supabase credentials
 └── CLAUDE.md                          # This file
-
+```
 ---
 
 ## Database Schema
