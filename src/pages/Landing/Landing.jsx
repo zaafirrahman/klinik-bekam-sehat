@@ -749,8 +749,8 @@ export default function Landing() {
               <div>
                 <div className="l-doc-tag">✦ Pendiri & Dokter Utama</div>
                 <h3 className="l-doc-name">dr. Abdurrahman Umar</h3>
-                <div className="l-doc-title">Penasihat · Perhimpunan Dokter Bekam Indonesia (PDBI)</div>
-                <p className="l-doc-bio">Lulusan Fakultas Kedokteran Universitas Hasanuddin Makassar yang merintis Klinik Bekam Sehat sejak 2009. Mengenal bekam dari pelatihan langsung di Malaysia dan memperdalam akupuntur dari spesialis RS Cipto Mangunkusumo Jakarta. Aktif berdakwah melalui seminar kesehatan dan kajian masjid di seluruh Sumatera Utara.</p>
+                <div className="l-doc-title">Penasihat · Perhimpunan Dokter Bekam Indonesia (PDBI) & Perkumpulan Bekam Indonesia (PBI)</div>
+                <p className="l-doc-bio">Lulusan Fakultas Kedokteran Universitas Hasanuddin Makassar yang merintis Klinik Bekam Sehat sejak 2009. Mengenal bekam dari pelatihan langsung di Malaysia dan memperdalam akupuntur dari para guru dokter spesialis akupuntur RS Cipto Mangunkusumo Jakarta. Aktif berdakwah melalui seminar kesehatan dan kajian masjid di seluruh Sumatera Utara.</p>
                 <p className="l-doc-bio">Dalam lebih dari 18 tahun praktek, beliau telah menangani pasien dengan beragam kondisi — dari penyakit ringan hingga berat seperti diabetes, stroke, cardiovaskular, dan gastritis. Kliniknya juga menjadi pusat pelatihan bekam dan akupuntur yang alumninya telah tersebar ke seluruh Indonesia bahkan mancanegara.</p>
                 <div className="l-doc-creds">
                   <div className="l-cred">🎓 FK Universitas Hasanuddin</div>
