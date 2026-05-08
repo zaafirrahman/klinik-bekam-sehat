@@ -708,7 +708,7 @@ export default function Landing() {
             <div className={`l-sunnah-card ${isSunnah ? 'act' : 'inact'}`}>
               <div className={`l-sunnah-icon ${isSunnah ? 'act' : 'inact'}`}>{isSunnah ? '🟢' : '📅'}</div>
               <div style={{ flex:1 }}>
-                <div className="l-sunnah-lbl">{isSunnah ? 'Hari ini adalah hari sunnah bekam!' : 'Hari Sunnah Bekam Berikutnya'}</div>
+                <div className="l-sunnah-lbl">{isSunnah ? 'Hari ini adalah hari sunnah bekam!' : 'Info Hari Sunnah Bekam'}</div>
                 <div className="l-sunnah-dt">Hari ini : {todayMasehi} · {hijriStr}</div>
                 {isSunnah
                   ? <p className="l-sunnah-txt">Tanggal {hijriDay} {monthName} adalah hari yang dianjurkan Rasulullah ﷺ untuk berbekam (17, 19, dan 21 Hijriah). Manfaatkan hari penuh berkah ini untuk hijamah.</p>
