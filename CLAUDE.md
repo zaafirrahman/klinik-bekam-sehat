@@ -2,7 +2,7 @@
 
 Sistem manajemen klinik berbasis web untuk **Klinik Bekam Sehat dr. Abdurrahman**, klinik pengobatan islami dan alami di Medan, Indonesia. Dibangun dengan React + Supabase, di-deploy ke Cloudflare.
 
-**Live:** https://klinikbekamsehat.pages.dev
+**Live:** https://klinikbekamsehat.id
 **Repo:** Public GitHub (zaafirrahman)  
 **Database:** Supabase (Klinik Bekam Sehat)
 

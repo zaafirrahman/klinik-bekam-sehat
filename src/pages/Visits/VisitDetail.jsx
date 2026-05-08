@@ -406,7 +406,7 @@ Nota pembayaran terlampir.
 Total: *Rp ${total.toLocaleString('id-ID')}*
 
 Cek riwayat kunjungan Anda di:
-https://klinikbekamsehat.pages.dev/portal
+https://klinikbekamsehat.id/portal
 Kode Pasien: *${visit.patients?.patient_code}*
 
 _Wassalam,_
