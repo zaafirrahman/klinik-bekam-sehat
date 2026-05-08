@@ -80,7 +80,7 @@ klinik-bekam-sehat/
 | Table | Description |
 |-------|-------------|
 | `profiles` | Staff accounts (id FK→auth.users, full_name, role: owner/admin) |
-| `patients` | Patient master data (patient_code: P0001, name, birth_year, phone, address) |
+| `patients` | Patient master data (patient_code: P0001, name, birth_date (DATE), phone, address) |
 | `visits` | Patient visits (patient_id, visit_date, blood_pressure, chief_complaint) |
 | `visit_services` | Services/products per visit (status: pending/done, final_price editable) |
 | `services` | Master services & products (category: layanan/produk, service_code, base_price) |
@@ -90,14 +90,14 @@ klinik-bekam-sehat/
 | `consultations` | Consultation records (reg_number auto-generated: 00.XX.YY format) |
 | `lab_results` | Lab results (blood_sugar+type, uric_acid+gender, cholesterol) |
 | `clinic_settings` | Single-row clinic info (singleton, id=1) — includes `layout_url`, `stamp_url`, `signature_url`, `sip_number`, `doctor` |
-| `akupuntur_packages` | Paket akupuntur pasien (12 sesi, progress tracking via `visited_ids` UUID array, package_code: AKU-YYYY-XXX) |
+| `akupuntur_packages` | Paket akupuntur pasien (customizable sessions via `total_sessions`, progress via `visited_ids` UUID array, package_code: AKU-YYYY-XXX) |
 
 ### Key Design Decisions
 - **`visit_services.status`**: `pending` → `done` triggers auto-insert to `daily_income`
 - **`final_price`** is fully editable at checkout — no fixed pricing enforced
 - **`patient_code`** auto-generated (P0001, P0002...) via sequence + trigger
 - **`reg_number`** format: `00.XX.YY` where XX=sequence mod 100, first two digits=hundreds
-- **`birth_year`** only (not full birth_date) — age shown as `~X th` (estimate)
+- **`birth_date`** (DATE type) — age calculated exactly using date of birth
 - **`lab_results.blood_sugar_type`**: `puasa` | `sewaktu`
 - **`lab_results.uric_acid_gender`**: `pria` | `wanita`
 - **`clinic_settings`** stored in Supabase (NOT localStorage) — syncs across devices
@@ -152,7 +152,7 @@ Visit → tambah layanan (status: pending)
 
 ### WA Integration
 - **Nota**: kirim teks ringkas + drag & drop PDF ke WA Web
-- **Lab**: kirim hasil lab + link portal pasien
+- **Lab**: kirim hasil lab + link portal pasien + kode pasien
 - Format: `wa.me/{phone}?text={encoded_message}`
 - Nomor diformat otomatis: `08xx` → `628xx`
 

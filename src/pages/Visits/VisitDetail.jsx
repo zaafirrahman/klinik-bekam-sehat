@@ -407,6 +407,7 @@ Total: *Rp ${total.toLocaleString('id-ID')}*
 
 Cek riwayat kunjungan Anda di:
 https://klinikbekamsehat.pages.dev/portal
+Kode Pasien: *${visit.patients?.patient_code}*
 
 _Wassalam,_
 Semoga sehat selalu!`
@@ -526,7 +527,7 @@ Semoga sehat selalu!`
               <span>{visit.blood_pressure || '-'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Keluhan</span>
+              <span className="text-muted-foreground">Tindakan</span>
               <span className="text-right max-w-xs">{visit.chief_complaint || '-'}</span>
             </div>
             <div className="flex justify-between">
@@ -773,7 +774,7 @@ Semoga sehat selalu!`
               />
             </div>
             <div className="space-y-2">
-              <Label>Keluhan Utama</Label>
+              <Label>Tindakan</Label>
               <Input
                 value={editForm.chief_complaint}
                 onChange={e => setEditForm({ ...editForm, chief_complaint: e.target.value })}

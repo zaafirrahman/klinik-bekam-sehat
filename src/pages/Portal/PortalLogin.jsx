@@ -83,6 +83,13 @@ const CSS = `
     padding: 0 0.25rem;
   }
 
+  .pl-hint a {
+    color: #2C3E2D; font-weight: 600;
+  }
+  .pl-hint a:hover {
+    color: #1a2b1b; text-decoration: underline;
+  }
+
   .pl-back {
     display: block; text-align: center; margin-top: 1.5rem;
     background: none; border: none; cursor: pointer;
@@ -208,7 +215,9 @@ export default function PortalLogin() {
               </div>
               <p className="pl-hint">
                 Kode pasien tertera pada nota kunjungan Anda.<br/>
-                Cek nota →
+                <a href="https://wa.me/6282364704338" target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                  Cek nota →
+                </a>
               </p>
             </div>
           </div>

@@ -24,7 +24,7 @@ Sistem ini dirancang dan dibangun dengan menerapkan prinsip **Lean & Maximum Eff
 - **Hasil Lab** — input gula darah, asam urat, kolesterol, generate surat hasil lab PDF profesional
 - **Keuangan** — laporan harian otomatis dari checkout, pengeluaran manual, laporan bulanan (owner only)
 - **Laporan** — grafik pendapatan, layanan terpopuler (owner only)
-- **Paket Akupuntur** — manajemen paket 12 sesi, tracking progress per kunjungan, kode otomatis AKU-YYYY-XXX
+- **Paket Akupuntur** — manajemen paket customizable (bisa beda jumlah sesi), tracking progress per kunjungan, kode otomatis AKU-YYYY-XXX
 - **Portal Pasien** — pasien bisa cek riwayat kunjungan, hasil lab, dan progres paket akupuntur
 - **PWA** — bisa diinstall di HP layaknya aplikasi native
 - **PDF Profesional** — kop surat, watermark, TTD + stempel dokter, stempel LUNAS

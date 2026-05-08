@@ -214,6 +214,10 @@ const CSS = `
   border-top: 1px solid #E8DCC8; margin-top: 1rem;
   max-width: 640px; margin-left: auto; margin-right: auto;
 }
+.pd-footer-msg {
+  font-size: 0.78rem; color: #2C3E2D; margin-bottom: 1rem; line-height: 1.6;
+  font-weight: 500;
+}
 .pd-footer-back {
   background: none; border: none; cursor: pointer; font-family: 'Lato', sans-serif;
   font-size: 0.8rem; color: #7A9E7E; transition: color 0.2s; margin-bottom: 0.75rem; display: inline-block;
@@ -571,11 +575,6 @@ export default function PortalDashboard() {
                         </div>
                       )}
 
-                      {pkg.notes && (
-                        <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
-                          Catatan: {pkg.notes}
-                        </div>
-                      )}
                       <div className="pd-visit-total">
                         <div className="pd-visit-total-label">Progress</div>
                         <div className="pd-visit-total-val">{progress} / {pkg.total_sessions} sesi</div>
@@ -651,6 +650,9 @@ export default function PortalDashboard() {
 
           {/* ── FOOTER ── */}
           <div className="pd-footer">
+            <div className="pd-footer-msg">
+              Terima kasih telah mempercayakan kesehatan Anda kepada kami. Semoga sehat selalu 💚
+            </div>
             <button className="pd-footer-back" onClick={() => navigate('/')}>← Kembali ke Beranda</button>
             <div className="pd-footer-info">
               {clinicInfo?.name || 'Klinik Bekam Sehat dr. Abdurrahman'}

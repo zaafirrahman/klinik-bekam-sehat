@@ -36,6 +36,7 @@ export default function AkupunturPackages() {
   const [patientPopover, setPatientPopover] = useState(false)
   const [form, setForm] = useState({
     package_amount: '',
+    total_sessions: 12,
     notes: '',
   })
 
@@ -92,8 +93,8 @@ export default function AkupunturPackages() {
       patient_id: selectedPatient.id,
       visit_id: lastVisitId,
       package_amount: parseInt(form.package_amount),
+      total_sessions: parseInt(form.total_sessions),
       progress: 0,
-      total_sessions: 12,
       notes: form.notes || null,
       created_by: user.id,
     })
@@ -107,7 +108,7 @@ export default function AkupunturPackages() {
       setAddOpen(false)
       setSelectedPatient(null)
       setPatientSearch('')
-      setForm({ package_amount: '', notes: '' })
+      setForm({ package_amount: '', total_sessions: 12, notes: '' })
       fetchPackages()
     }
   }
@@ -200,7 +201,22 @@ export default function AkupunturPackages() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  Total biaya untuk 12 sesi akupuntur
+                  Total biaya untuk paket
+                </p>
+              </div>
+
+              {/* Jumlah Sesi */}
+              <div className="space-y-2">
+                <Label>Jumlah Sesi *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={form.total_sessions}
+                  onChange={e => setForm({ ...form, total_sessions: e.target.value })}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Jumlah kunjungan akupuntur dalam paket
                 </p>
               </div>
 
@@ -244,7 +260,7 @@ export default function AkupunturPackages() {
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
                   <div className="text-right text-sm font-medium text-green-600">
-                    {pkg.progress}/12 sesi
+                    {pkg.progress}/{pkg.total_sessions} sesi
                   </div>
                   {renderProgress(pkg.progress, pkg.total_sessions)}
                 </div>
@@ -296,9 +312,9 @@ export default function AkupunturPackages() {
                   <TableCell>Rp {pkg.package_amount.toLocaleString('id-ID')}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{pkg.progress}/12</span>
+                      <span className="text-sm font-medium">{pkg.progress}/{pkg.total_sessions}</span>
                       <div className="flex gap-1">
-                        {Array.from({ length: 12 }).map((_, i) => {
+                        {Array.from({ length: pkg.total_sessions }).map((_, i) => {
                           const isFilled = i < pkg.progress
                           return (
                             <div

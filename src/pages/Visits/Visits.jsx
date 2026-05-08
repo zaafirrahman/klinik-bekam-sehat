@@ -205,9 +205,9 @@ export default function Visits() {
 
               {/* Keluhan */}
               <div className="space-y-2">
-                <Label>Keluhan Utama</Label>
+                <Label>Tindakan</Label>
                 <Input
-                  placeholder="Keluhan pasien"
+                  placeholder="Tindakan pasien"
                   value={form.chief_complaint}
                   onChange={e => setForm({ ...form, chief_complaint: e.target.value })}
                 />
@@ -285,7 +285,7 @@ export default function Visits() {
             <TableRow>
               <TableHead>Tanggal</TableHead>
               <TableHead>Pasien</TableHead>
-              <TableHead>Keluhan</TableHead>
+              <TableHead>Tindakan</TableHead>
               <TableHead>TD</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Total</TableHead>

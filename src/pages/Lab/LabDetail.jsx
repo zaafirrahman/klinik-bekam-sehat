@@ -376,8 +376,9 @@ Berikut hasil pemeriksaan lab Anda:
 
 ${results.join('\n')}
 
-Cek riwayat pemeriksaan di: 
+Cek riwayat pemeriksaan di:
 https://klinikbekamsehat.pages.dev/portal
+Kode Pasien: *${lab.patients?.patient_code}*
 
 _Wassalam,_
 Semoga sehat selalu!`
