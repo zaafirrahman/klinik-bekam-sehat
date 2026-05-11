@@ -22,11 +22,17 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@/components/ui/popover'
 
+const PAGE_SIZE = 20
+
 export default function Visits() {
   const [visits, setVisits] = useState([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
   const navigate = useNavigate()
+
+  // Pagination state
+  const [page, setPage] = useState(0) // 0-based
+  const [totalCount, setTotalCount] = useState(0)
 
   // Form state
   const [patientSearch, setPatientSearch] = useState('')
@@ -40,25 +46,41 @@ export default function Visits() {
     notes: '',
   })
 
-  const fetchVisits = async () => {
+  const fetchVisits = async (targetPage = page) => {
     setLoading(true)
-    const { data, error } = await supabase
+    const from = targetPage * PAGE_SIZE
+    const to = from + PAGE_SIZE - 1
+
+    const { data, error, count } = await supabase
       .from('visits')
       .select(`
         *,
         patients (name, patient_code),
         visit_services (id, status, final_price, quantity)
-      `)
+      `, { count: 'exact' })
       .order('visit_date', { ascending: false })
       .order('created_at', { ascending: false })
-      .limit(50)
+      .range(from, to)
 
     if (error) toast.error('Gagal memuat data kunjungan')
-    else setVisits(data || [])
+    else {
+      setVisits(data || [])
+      setTotalCount(count || 0)
+    }
     setLoading(false)
   }
 
-  useEffect(() => { fetchVisits() }, [])
+  useEffect(() => { fetchVisits(page) }, [page])
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
+
+  const handlePrev = () => {
+    if (page > 0) setPage(p => p - 1)
+  }
+
+  const handleNext = () => {
+    if (page < totalPages - 1) setPage(p => p + 1)
+  }
 
   const searchPatients = async (q) => {
     if (!q.trim()) { setPatientResults([]); return }
@@ -101,7 +123,9 @@ export default function Visits() {
         chief_complaint: '',
         notes: '',
       })
-      fetchVisits()
+      // Kembali ke halaman pertama setelah tambah data baru
+      if (page === 0) fetchVisits(0)
+      else setPage(0)
     }
   }
 
@@ -120,12 +144,22 @@ export default function Visits() {
     return visit.visit_services.reduce((sum, s) => sum + (s.final_price * s.quantity), 0)
   }
 
+  // Info teks halaman, misal "21–40 dari 157 kunjungan"
+  const rangeStart = totalCount === 0 ? 0 : page * PAGE_SIZE + 1
+  const rangeEnd = Math.min((page + 1) * PAGE_SIZE, totalCount)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Kunjungan</h1>
-          <p className="text-sm text-muted-foreground">50 kunjungan terakhir</p>
+          <p className="text-sm text-muted-foreground">
+            {loading
+              ? 'Memuat data...'
+              : totalCount > 0
+                ? `${rangeStart}–${rangeEnd} dari ${totalCount} kunjungan`
+                : 'Belum ada kunjungan'}
+          </p>
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -279,6 +313,7 @@ export default function Visits() {
         )}
       </div>
 
+      {/* Desktop: Table */}
       <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
@@ -341,6 +376,33 @@ export default function Visits() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Halaman {page + 1} dari {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrev}
+              disabled={page === 0}
+            >
+              ← Sebelumnya
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNext}
+              disabled={page >= totalPages - 1}
+            >
+              Berikutnya →
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
