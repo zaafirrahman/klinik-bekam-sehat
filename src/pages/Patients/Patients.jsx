@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DateInputManual } from '@/components/ui/date-input'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { useNavigate } from 'react-router-dom'
@@ -48,10 +49,9 @@ function PatientForm({ form, setForm, onSubmit, submitLabel }) {
       </div>
       <div className="space-y-2">
         <Label>Tanggal Lahir</Label>
-        <Input
-          type="date"
+        <DateInputManual
           value={form.birth_date}
-          onChange={e => setForm({ ...form, birth_date: e.target.value })}
+          onChange={val => setForm({ ...form, birth_date: val })}
         />
       </div>
       <div className="space-y-2">

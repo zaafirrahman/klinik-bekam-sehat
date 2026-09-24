@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DateInputManual } from '@/components/ui/date-input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -219,10 +220,9 @@ export default function Visits() {
               {/* Tanggal */}
               <div className="space-y-2">
                 <Label>Tanggal Kunjungan *</Label>
-                <Input
-                  type="date"
+                <DateInputManual
                   value={form.visit_date}
-                  onChange={e => setForm({ ...form, visit_date: e.target.value })}
+                  onChange={val => setForm({ ...form, visit_date: val })}
                   required
                 />
               </div>

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DateInputManual } from '@/components/ui/date-input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -759,10 +760,9 @@ Semoga sehat selalu!`
           <form onSubmit={handleEditVisit} className="space-y-4 mt-2">
             <div className="space-y-2">
               <Label>Tanggal Kunjungan</Label>
-              <Input
-                type="date"
+              <DateInputManual
                 value={editForm.visit_date}
-                onChange={e => setEditForm({ ...editForm, visit_date: e.target.value })}
+                onChange={val => setEditForm({ ...editForm, visit_date: val })}
               />
             </div>
             <div className="space-y-2">
