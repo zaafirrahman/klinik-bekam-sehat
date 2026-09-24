@@ -60,7 +60,7 @@ klinik-bekam-sehat/
 │   │   └── Settings/
 │   │       └── Settings.jsx           # Services/products, clinic info, user management
 │   ├── components/
-│   │   ├── ui/                        # shadcn/ui components (DO NOT edit manually)
+│   │   ├── ui/                        # shadcn/ui components (see rule below) + a few custom shared inputs (e.g. date-input.jsx)
 │   │   └── AppLayout.jsx              # Sidebar layout for authenticated admin pages
 │   ├── hooks/
 │   │   └── use-mobile.js              # useIsMobile hook
@@ -181,6 +181,18 @@ Key mobile fixes applied:
 
 ---
 
+## Custom Shared Components
+
+Components that aren't shadcn/ui primitives but live in `src/components/ui/` because they're shared, drop-in-compatible inputs. Listed here so they don't get mistaken for shadcn files:
+
+| Component | File | Used in | Why it exists |
+|-----------|------|---------|----------------|
+| `DateInputManual` | `src/components/ui/date-input.jsx` | `Patients.jsx` (birth_date), `Visits.jsx` (visit_date, add form), `VisitDetail.jsx` (visit_date, edit form) | Native `<input type="date">` on tablets forces calendar-only picker, no manual typing. `DateInputManual` lets staff type `dd/mm/yyyy` (auto-masked) or use a calendar icon fallback. Props: `value`/`onChange` still use ISO `yyyy-mm-dd`, same as native date input — drop-in replacement, no Supabase logic changes needed. |
+
+When adding a new date field anywhere in the app, use `DateInputManual` instead of `<Input type="date">` for consistency.
+
+---
+
 ## Environment Variables
 
 ```env
@@ -217,6 +229,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 - Add `overflow-y-auto max-h-[90vh]` to Dialog with long forms
 - Keep `security definer` on all PostgreSQL functions that create sequences
 - Always add both mobile (`md:hidden`) and desktop (`hidden md:block`) versions for list pages
+- Use `DateInputManual` (`@/components/ui/date-input`) for any date field instead of `<Input type="date">` — tablets can't type manually into native date inputs
 
 ### DON'T
 - Don't define components inside other components (causes re-render/refocus bugs)
@@ -225,7 +238,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 - Don't add new tables without also adding RLS policies + GRANT
 - Don't hardcode clinic name/address/phone in PDFs (fetch from `clinic_settings`)
 - Don't use `react-router-dom` `<Link>` — use `useNavigate()` hook
-- Don't edit files in `src/components/ui/` unless fixing shadcn bugs
+- Don't edit actual shadcn-generated files in `src/components/ui/` unless fixing shadcn bugs (custom shared components like `date-input.jsx` are fine to edit — they're ours, not shadcn's)
 
 ### Common Pitfalls
 - **Input refocus bug**: Never define form components inside parent component — always define outside
@@ -237,6 +250,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 - **PDF image size**: jsPDF embed raw pixel data — PNG 45KB bisa jadi 3MB di PDF. Selalu compress via canvas `toDataURL('image/jpeg', 0.75)` sebelum `addImage`
 - **PDF layer order**: `addImage(layout)` harus dipanggil PERTAMA sebelum teks apapun, TTD/stempel TERAKHIR
 - **PDF fetch asset**: Gunakan `fetch(url)` langsung untuk public bucket, bukan `supabase.storage.download()`
+- **Native date input on tablet**: `<input type="date">` forces calendar-only entry on tablets (no manual typing). Use `DateInputManual` instead.
 
 ---
 
