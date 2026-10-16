@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
-// Pages
+// Pages-
 import Login from './pages/Auth/Login'
 import Patients from './pages/Patients/Patients'
 import Visits from './pages/Visits/Visits'
